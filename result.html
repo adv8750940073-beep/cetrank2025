@@ -1,198 +1,6 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-  <meta charset="UTF-8" />
-  <title>CET Live Rank</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      margin: 0;
-      padding: 16px;
-    }
-    .card {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #020617;
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      border: 1px solid #1f2937;
-    }
-    .title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-bottom: 16px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .pill {
-      background: #020617;
-      border-radius: 16px;
-      padding: 8px 10px;
-      border: 1px solid #1f2937;
-    }
-    .pill-label {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-    .pill-value {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .highlight {
-      font-size: 32px;
-      font-weight: 800;
-      text-align: center;
-      margin: 12px 0;
-    }
-    .badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #1e293b;
-      color: #e5e7eb;
-      border: 1px solid #4b5563;
-      margin-bottom: 8px;
-    }
-    .footer {
-      font-size: 11px;
-      color: #6b7280;
-      margin-top: 12px;
-      text-align: right;
-    }
-    .error {
-      color: #fecaca;
-      text-align: center;
-      margin-top: 16px;
-      font-size: 12px;
-    }
-    .share-btn {
-      width: 100%;
-      margin-top: 14px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: none;
-      font-size: 14px;
-      font-weight: 500;
-      background: #1f2937;
-      color: #e5e7eb;
-      cursor: pointer;
-    }
-    .insta-note {
-      font-size: 18px;
-      color: #9ca3af;
-      margin-top: 10px;
-      line-height: 1.5;
-      text-align: center;
-    }
-    .insta-link {
-      color: #38bdf8;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .section {
-      max-width: 600px;
-      margin: 16px auto 0;
-      font-size: 11px;
-      color: #9ca3af;
-      line-height: 1.5;
-    }
-    .section h2 {
-      font-size: 12px;
-      margin: 0 0 6px;
-      color: #e5e7eb;
-    }
-    .section ul {
-      padding-left: 18px;
-      margin: 4px 0 0;
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="title">CET Live Rank</div>
-    <div class="subtitle">
-      HSSC CET Marks Card के आधार पर आपका Rank  
-      <br>यह पेज अपने आप हर कुछ सेकंड में अपडेट होता रहेगा (Live Rank)।
-    </div>
-
-    <div id="userInfo" class="grid" style="margin-bottom: 12px;"></div>
-
-    <div class="badge" id="marksBadge">Marks: --</div>
-
-    <div class="highlight" id="overallRank">#--</div>
-    <div style="text-align:center;font-size:12px;color:#9ca3af;margin-bottom:12px;">
-      Overall Rank (सभी Candidates में)
-    </div>
-
-    <div class="grid">
-      <div class="pill">
-        <div class="pill-label">Category-wise Rank</div>
-        <div class="pill-value" id="catRank">--</div>
-      </div>
-      <div class="pill">
-        <div class="pill-label">Gender-wise Rank</div>
-        <div class="pill-value" id="genderRank">--</div>
-      </div>
-      <div class="pill">
-        <div class="pill-label">Age-wise Rank</div>
-        <div class="pill-value" id="ageRank">--</div>
-      </div>
-      <div class="pill">
-        <div class="pill-label">Exam Date-wise Rank</div>
-        <div class="pill-value" id="examDateRank">--</div>
-      </div>
-    </div>
-
-    <button class="share-btn" type="button" onclick="handleShare()">
-      🔗 इस रैंक पेज को दोस्तों के साथ शेयर करें
-    </button>
-
-    <div class="insta-note">
-      
-घबराये नहीं वेबसाइट under maintanance है जल्दी ही ठीक कर दी जाएगी आज साम 5 बजे तक  
-      site under maintenance hai jaldi hi thek kar di jayegi  5pm tk
-      <br>
-      Instagram:
-      <a class="insta-link" href="https://instagram.com/adv_kanha73" target="_blank">@adv_kanha73</a>
-    </div>
-
-    <div class="footer" id="lastUpdated">
-      Rank as on: --
-    </div>
-
-    <div class="error" id="errorBox"></div>
-  </div>
-
-  <div class="section">
-    <h2>महत्वपूर्ण सूचना (Disclaimer)</h2>
-    यह <b>कोई आधिकारिक सरकारी वेबसाइट नहीं</b> है और न ही यह HSSC या किसी सरकारी संस्था से जुड़ी हुई है।  
-    यह केवल विद्यार्थियों की मदद के लिए बनाया गया <b>Unofficial Rank Calculator</b> है।
-
-    <h2 style="margin-top:12px;">Terms &amp; Conditions (शर्तें)</h2>
-    <ul>
-      <li>आप जो भी PDF अपलोड करते हैं, वह केवल रैंक निकालने के उद्देश्य से उपयोग की जाती है।</li>
-      <li>आपका डेटा किसी तीसरे व्यक्ति को शेयर, बेचा या गलत तरीके से उपयोग नहीं किया जाता।</li>
-      <li>रैंक का calculation official नहीं है, यह user-submitted डेटा पर आधारित है।</li>
-      <li>किसी भी तरह की Official Merit List या Final Decision हमेशा HSSC के official result पर आधारित होगा।</li>
-      <li>इस टूल का उपयोग करते समय किसी भी प्रकार की गलतफहमी या नुकसान के लिए developer जिम्मेदार नहीं होगा।</li>
-    </ul>
-  </div>
-
-  <script>
+<script>
   const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHo7ecIYJP-ekEOfsCnD1BUtbSJ_nF6ZNZ2vi_hsQb6fyA0GBurHQTxWbPrm0DKZzOIQ/exec";
+  // ऊपर वाली लाइन में अपना नया Apps Script URL डालना मत भूलना
 
   function getQueryParam(name) {
     const url = new URL(window.location.href);
@@ -210,19 +18,39 @@
     const errorBox = document.getElementById("errorBox");
 
     if (!roll) {
-      errorBox.textContent = "Roll number नहीं मिला (URL में ?roll= डालें)।";
+      errorBox.textContent = "URL में ?roll=ROLLNUMBER नहीं मिला।";
       return;
     }
 
     try {
       errorBox.textContent = "Rank लोड हो रही है...";
+
       const res = await fetch(`${BACKEND_URL}?roll=${encodeURIComponent(roll)}`);
-      const data = await res.json();
+
+      // पहले raw text पढ़ते हैं ताकि अगर JSON न हो तो भी पता चले backend क्या भेज रहा है
+      const rawText = await res.text();
+
+      if (!res.ok) {
+        errorBox.textContent =
+          `Backend HTTP ${res.status}. Response (शुरुआत): ` +
+          rawText.slice(0, 150) + "...";
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (jsonErr) {
+        errorBox.textContent =
+          "Backend ने JSON की जगह कुछ और भेजा है (शुरुआत): " +
+          rawText.slice(0, 150) + "...";
+        return;
+      }
 
       if (!data || data.error) {
         errorBox.textContent = data && data.error
-          ? data.error
-          : "कुछ गड़बड़ हो गई (empty response)।";
+          ? ("Error: " + data.error)
+          : "Backend से empty / invalid JSON आया।";
         return;
       }
 
@@ -233,30 +61,39 @@
 
       errorBox.textContent = "";
 
-const u = data.user;
+      const u = data.user || {};
+      const r = data.ranks || {};
+      const stats = data.stats || {};
 
-        document.getElementById("userInfo").innerHTML = `
-          <div class="pill"><div class="pill-label">Name</div><div class="pill-value">${u.name}</div></div>
-          <div class="pill"><div class="pill-label">Roll</div><div class="pill-value">${u.roll}</div></div>
-          <div class="pill"><div class="pill-label">Gender</div><div class="pill-value">${u.gender}</div></div>
-          <div class="pill"><div class="pill-label">Category</div><div class="pill-value">${u.category}</div></div>
-          <div class="pill"><div class="pill-label">DOB</div><div class="pill-value">${u.dob}</div></div>
-          <div class="pill"><div class="pill-label">Exam Date</div><div class="pill-value">${u.exam_date}</div></div>
-        `;      document.getElementById("marksBadge").textContent =
-        `Marks: ${u.cet_marks != null ? u.cet_marks : "--"}`;
+      document.getElementById("userInfo").innerHTML = `
+        <div class="pill"><div class="pill-label">Name</div><div class="pill-value">${u.name || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Roll</div><div class="pill-value">${u.roll || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Gender</div><div class="pill-value">${u.gender || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Category</div><div class="pill-value">${u.category || "--"}</div></div>
+        <div class="pill"><div class="pill-label">DOB</div><div class="pill-value">${u.dob || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Exam Date</div><div class="pill-value">${u.exam_date || "--"}</div></div>
+      `;
 
-      document.getElementById("overallRank").textContent = "#" + (r.overallRank || "--");
-      document.getElementById("catRank").textContent = "#" + (r.categoryRank || "--");
-      document.getElementById("genderRank").textContent = "#" + (r.genderRank || "--");
-      document.getElementById("ageRank").textContent = r.ageRank ? ("#" + r.ageRank) : "--";
-      document.getElementById("examDateRank").textContent = "#" + (r.examDateRank || "--");
+      document.getElementById("marksBadge").textContent =
+        "Marks: " + (u.cet_marks != null ? u.cet_marks : "--");
+
+      document.getElementById("overallRank").textContent =
+        "#" + (r.overallRank || "--");
+      document.getElementById("catRank").textContent =
+        "#" + (r.categoryRank || "--");
+      document.getElementById("genderRank").textContent =
+        "#" + (r.genderRank || "--");
+      document.getElementById("ageRank").textContent =
+        r.ageRank ? ("#" + r.ageRank) : "--";
+      document.getElementById("examDateRank").textContent =
+        "#" + (r.examDateRank || "--");
 
       document.getElementById("lastUpdated").textContent =
         "Rank as on: " + formatDateTime(data.rankTime) +
         ` | Total Candidates: ${stats.totalCandidates || "--"}`;
     } catch (err) {
       console.log(err);
-      errorBox.textContent = "Network error / Backend issue.";
+      errorBox.textContent = "Network error / Backend issue: " + err.message;
     }
   }
 
@@ -275,8 +112,6 @@ const u = data.user;
   }
 
   fetchLiveRank();
+  // चाहो तो auto-refresh रखें, नहीं चाहिए तो ये लाइन हटा सकते हो:
   setInterval(fetchLiveRank, 10000);
 </script>
-
-</body>
-</html>
