@@ -233,16 +233,17 @@
 
       errorBox.textContent = "";
 
-      const u = data.user || {};
+const u = data.user;
 
 document.getElementById("userInfo").innerHTML = `
-  <div class="pill"><div class="pill-label">Name</div><div class="pill-value">${u.name || "--"}</div></div>
-  <div class="pill"><div class="pill-label">Roll</div><div class="pill-value">${u.roll || "--"}</div></div>
-  <div class="pill"><div class="pill-label">Gender</div><div class="pill-value">${u.gender || "--"}</div></div>
-  <div class="pill"><div class="pill-label">Category</div><div class="pill-value">${u.category || "--"}</div></div>
-  <div class="pill"><div class="pill-label">DOB</div><div class="pill-value">${u.dob || "--"}</div></div>
-  <div class="pill"><div class="pill-label">Exam Date</div><div class="pill-value">${u.exam_date || "--"}</div></div>
+  <div class="pill"><div class="pill-label">Name</div><div class="pill-value">${u.name}</div></div>
+  <div class="pill"><div class="pill-label">Roll</div><div class="pill-value">${u.roll}</div></div>
+  <div class="pill"><div class="pill-label">Gender</div><div class="pill-value">${u.gender}</div></div>
+  <div class="pill"><div class="pill-label">Category</div><div class="pill-value">${u.category}</div></div>
+  <div class="pill"><div class="pill-label">DOB</div><div class="pill-value">${u.dob}</div></div>
+  <div class="pill"><div class="pill-label">Exam Date</div><div class="pill-value">${u.exam_date}</div></div>
 `;
+
       document.getElementById("marksBadge").textContent =
         `Marks: ${u.cet_marks != null ? u.cet_marks : "--"}`;
 
