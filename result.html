@@ -191,82 +191,95 @@
   </div>
 
   <script>
-    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwN_guHPyNz7FvwC8MCDS0pc_beARnLgPW3N4VVHAWxNNwVu2fQEccsX36Z35tjSRXBVQ/exec";
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwN_guHPyNz7FvwC8MCDS0pc_beARnLgPW3N4VVHAWxNNwVu2fQEccsX36Z35tjSRXBVQ/exec";
 
-    function getQueryParam(name) {
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name);
+  function getQueryParam(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
+  }
+
+  function formatDateTime(iso) {
+    if (!iso) return "--";
+    const d = new Date(iso);
+    return d.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+  }
+
+  async function fetchLiveRank() {
+    const roll = getQueryParam("roll");
+    const errorBox = document.getElementById("errorBox");
+
+    if (!roll) {
+      errorBox.textContent = "Roll number नहीं मिला (URL में ?roll= डालें)।";
+      return;
     }
 
-    function formatDateTime(iso) {
-      if (!iso) return "--";
-      const d = new Date(iso);
-      return d.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-    }
+    try {
+      errorBox.textContent = "Rank लोड हो रही है...";
+      const res = await fetch(`${BACKEND_URL}?roll=${encodeURIComponent(roll)}`);
+      const data = await res.json();
 
-    async function fetchLiveRank() {
-      const roll = getQueryParam("roll");
-      const errorBox = document.getElementById("errorBox");
-
-      if (!roll) {
-        errorBox.textContent = "Roll number नहीं मिला।";
+      if (!data || data.error) {
+        errorBox.textContent = data && data.error
+          ? data.error
+          : "कुछ गड़बड़ हो गई (empty response)।";
         return;
       }
 
-      try {
-        const res = await fetch(`${BACKEND_URL}?roll=${encodeURIComponent(roll)}`);
-        const data = await res.json();
-
-        if (data.error) {
-          errorBox.textContent = "Error: " + data.error;
-          return;
-        }
-
-        errorBox.textContent = "";
-
-        const u = data.user;
-
-        document.getElementById("userInfo").innerHTML = `
-          <div class="pill"><div class="pill-label">Name</div><div class="pill-value">${u.name}</div></div>
-          <div class="pill"><div class="pill-label">Roll</div><div class="pill-value">${u.roll}</div></div>
-          <div class="pill"><div class="pill-label">Gender</div><div class="pill-value">${u.gender}</div></div>
-          <div class="pill"><div class="pill-label">Category</div><div class="pill-value">${u.category}</div></div>
-          <div class="pill"><div class="pill-label">DOB</div><div class="pill-value">${u.dob}</div></div>
-          <div class="pill"><div class="pill-label">Exam Date</div><div class="pill-value">${u.exam_date}</div></div>
-        `;
-
-        document.getElementById("marksBadge").textContent = `Marks: ${u.cet_marks}`;
-        document.getElementById("overallRank").textContent = "#" + data.ranks.overallRank;
-        document.getElementById("catRank").textContent = "#" + data.ranks.categoryRank;
-        document.getElementById("genderRank").textContent = "#" + data.ranks.genderRank;
-        document.getElementById("ageRank").textContent = data.ranks.ageRank ? ("#" + data.ranks.ageRank) : "--";
-        document.getElementById("examDateRank").textContent = "#" + data.ranks.examDateRank;
-
-        document.getElementById("lastUpdated").textContent =
-          "Rank as on: " + formatDateTime(data.rankTime) +
-          ` | Total Candidates: ${data.stats.totalCandidates}`;
-      } catch (err) {
-        document.getElementById("errorBox").textContent =
-          "Network error / Backend issue.";
+      if (!data.user) {
+        errorBox.textContent = "इस Roll number का डेटा Sheet में नहीं मिला।";
+        return;
       }
+
+      errorBox.textContent = "";
+
+      const u = data.user;
+      const r = data.ranks || {};
+      const stats = data.stats || {};
+
+      document.getElementById("userInfo").innerHTML = `
+        <div class="pill"><div class="pill-label">Name</div><div class="pill-value">${u.name || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Roll</div><div class="pill-value">${u.roll || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Gender</div><div class="pill-value">${u.gender || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Category</div><div class="pill-value">${u.category || "--"}</div></div>
+        <div class="pill"><div class="pill-label">DOB</div><div class="pill-value">${u.dob || "--"}</div></div>
+        <div class="pill"><div class="pill-label">Exam Date</div><div class="pill-value">${u.exam_date || "--"}</div></div>
+      `;
+
+      document.getElementById("marksBadge").textContent =
+        `Marks: ${u.cet_marks != null ? u.cet_marks : "--"}`;
+
+      document.getElementById("overallRank").textContent = "#" + (r.overallRank || "--");
+      document.getElementById("catRank").textContent = "#" + (r.categoryRank || "--");
+      document.getElementById("genderRank").textContent = "#" + (r.genderRank || "--");
+      document.getElementById("ageRank").textContent = r.ageRank ? ("#" + r.ageRank) : "--";
+      document.getElementById("examDateRank").textContent = "#" + (r.examDateRank || "--");
+
+      document.getElementById("lastUpdated").textContent =
+        "Rank as on: " + formatDateTime(data.rankTime) +
+        ` | Total Candidates: ${stats.totalCandidates || "--"}`;
+    } catch (err) {
+      console.log(err);
+      errorBox.textContent = "Network error / Backend issue.";
     }
+  }
 
-    async function handleShare() {
-      const url = window.location.href;
-      const text = "मैंने अपना HSSC CET Live Rank यहाँ चेक किया, आप भी अपना देख सकते हैं:";
+  async function handleShare() {
+    const url = window.location.href;
+    const text = "मैंने अपना HSSC CET Live Rank यहाँ चेक किया, आप भी अपना देख सकते हैं:";
 
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: "CET Live Rank", text, url });
-        } else {
-          await navigator.clipboard.writeText(url);
-          alert("लिंक कॉपी किया गया!");
-        }
-      } catch {}
-    }
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "CET Live Rank", text, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert("लिंक कॉपी किया गया!");
+      }
+    } catch {}
+  }
 
-    fetchLiveRank();
-    setInterval(fetchLiveRank, 10000);
-  </script>
+  fetchLiveRank();
+  setInterval(fetchLiveRank, 10000);
+</script>
+
 </body>
 </html>
