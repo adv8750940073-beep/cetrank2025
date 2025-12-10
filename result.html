@@ -511,6 +511,24 @@
     const BACKEND_URL =
       "https://script.google.com/macros/s/AKfycbwHo7ecIYJP-ekEOfsCnD1BUtbSJ_nF6ZNZ2vi_hsQb6fyA0GBurHQTxWbPrm0DKZzOIQ/exec";
 
+function openWhatsAppThenLoad(roll) {
+  // WhatsApp new tab me open
+  try {
+    window.open(
+      "https://whatsapp.com/channel/0029Vb6kNhq8fewpVWfe1m1s",
+      "_blank"
+    );
+  } catch (e) {
+    console.log("Popup blocked:", e);
+  }
+
+  // थोड़े delay के बाद rank load
+  setTimeout(() => {
+    fetchLiveRank(roll);
+  }, 700);
+}
+
+    
     function openCutoffWithWhatsApp() {
   // 1) WhatsApp channel new tab me open karo
   try {
@@ -643,8 +661,10 @@
 
     // Refresh बटन क्लिक पर rank load करें
     document.getElementById("refreshBtn").addEventListener("click", () => {
-      fetchLiveRank();
-    });
+  const roll = getQueryParam("roll") || document.getElementById("rollInput").value.trim();
+  openWhatsAppThenLoad(roll);
+});
+
 
     // अगर URL में पहले से roll है तो page load पर एक बार auto load
     window.addEventListener("load", () => {
@@ -661,20 +681,23 @@
 
     // "Go" बटन से भी same काम
     document.getElementById("rollGoBtn").addEventListener("click", () => {
-      const roll = document.getElementById("rollInput").value.trim();
-      if (!roll) {
-        showError("कृपया roll number भरें।");
-        return;
-      }
-      clearError();
-      // URL में भी अपडेट कर दें (ताकि share किया जा सके)
-      const params = new URLSearchParams(window.location.search);
-      params.set("roll", roll);
-      const newUrl =
-        window.location.pathname + "?" + params.toString() + window.location.hash;
-      window.history.replaceState({}, "", newUrl);
-      fetchLiveRank(roll);
-    });
+  const roll = document.getElementById("rollInput").value.trim();
+  if (!roll) {
+    showError("कृपया roll number भरें।");
+    return;
+  }
+  clearError();
+
+  const params = new URLSearchParams(window.location.search);
+  params.set("roll", roll);
+  const newUrl =
+    window.location.pathname + "?" + params.toString() + window.location.hash;
+  window.history.replaceState({}, "", newUrl);
+
+  // 👇 अब पहले WhatsApp open, फिर result load
+  openWhatsAppThenLoad(roll);
+});
+
   </script>
 </body>
 </html>
