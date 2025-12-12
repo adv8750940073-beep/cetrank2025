@@ -177,7 +177,11 @@
     const out = rows.slice(0, limit); // server already limits, but double-safe
     renderRows(out);
 
-    metaEl.textContent = `Showing ${out.length} of ${data.totalInCategory || rows.length} candidates (category ${cat}).`;
+    // पुरानी लाइन (जो आप हटाना/बदले बिना दिखाई दे रही थी)
+// metaEl.textContent = `Showing ${out.length} of ${data.totalInCategory || rows.length} candidates (category ${cat}).`;
+
+// नई लाइन — केवल Top N दिखायेगा, total नहीं दिखेगा
+metaEl.textContent = `Showing Top ${out.length} candidates (category ${cat}).`;
     setStatus('Loaded successfully. Sorted by CET marks descending.');
   } catch(err){
     console.error(err);
