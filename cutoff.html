@@ -144,10 +144,61 @@
       tr:nth-child(even) td { background: rgba(15,23,42,0.98); }
 
       /* CATEGORY CHIPS */
-      .chip { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; }
-      .chip-gen { background: rgba(55,65,81,0.9); }
-      .chip-cat { background: rgba(30,64,175,0.9); }
-      .chip-ews { background: rgba(132,204,22,0.9); color: #021013; }
+      /* CATEGORY CHIPS */
+.chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* GEN */
+.chip-gen {
+  background: rgba(55, 65, 81, 0.95);
+  color: #e5e7eb;
+}
+
+.chip-bca {
+  background: rgba(2, 132, 199, 0.9);
+  color: #e0f2fe;
+}
+
+.chip-bcb {
+  background: rgba(124, 58, 237, 0.9);
+  color: #ede9fe;
+}
+
+/* EWS */
+.chip-ews {
+  background: rgba(132, 204, 22, 0.95);
+  color: #022c22;
+}
+
+/* OSC */
+.chip-osc {
+  background: rgba(14, 165, 233, 0.95);
+  color: #e0f2fe;
+}
+
+/* DSC */
+.chip-dsc {
+  background: rgba(220, 38, 38, 0.95);
+  color: #fee2e2;
+}
+
+      
+      /* CHIP HOVER EFFECT */
+.chip {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: default;
+}
+
+.chip:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+}
+
 
       /* BUTTON */
       .calc-btn {
@@ -370,7 +421,6 @@
           <!-- SEATS -->
           <div class="controls-row">
             <div class="field small"><label>GEN</label><input id="genSeats" type="number" min="0"></div>
-            <div class="field small"><label>SC</label><input id="scSeats" type="number" min="0"></div>
             <div class="field small"><label>BCA</label><input id="bcaSeats" type="number" min="0"></div>
             <div class="field small"><label>BCB</label><input id="bcbSeats" type="number" min="0"></div>
             <div class="field small"><label>EWS</label><input id="ewsSeats" type="number" min="0"></div>
@@ -477,7 +527,7 @@
 
           <!-- Telegram (baad me apna link daal dena) -->
           <a
-            href="https://t.me/cetranker"
+            href="https://t.me/your_telegram_channel"
             target="_blank"
             class="social-pill tg"
           >
@@ -490,7 +540,7 @@
 
           <!-- YouTube (baad me change karna) -->
           <a
-            href="https://youtube.com/@cetranker"
+            href="https://youtube.com/@your_youtube_handle"
             target="_blank"
             class="social-pill yt"
           >
@@ -526,7 +576,6 @@
       const vacancyNameEl = document.getElementById("vacancyName");
 
       const genSeatsEl = document.getElementById("genSeats");
-      const scSeatsEl = document.getElementById("scSeats");
       const bcaSeatsEl = document.getElementById("bcaSeats");
       const bcbSeatsEl = document.getElementById("bcbSeats");
       const ewsSeatsEl = document.getElementById("ewsSeats");
@@ -550,13 +599,20 @@
       }
 
       function renderCategoryChip(cat) {
-        let cls = "chip";
-        const c = (cat || "").toUpperCase().trim();
-        if (c === "GEN") cls += " chip-gen";
-        else if (c === "EWS") cls += " chip-ews";
-        else cls += " chip-cat";
-        return '<span class="' + cls + '">' + c + "</span>";
-      }
+  const c = (cat || "").toUpperCase().trim();
+  let cls = "chip ";
+
+  if (c === "GEN") cls += "chip-gen";
+  else if (c === "BCA") cls += "chip-bca";
+  else if (c === "BCB") cls += "chip-bcb";
+  else if (c === "EWS") cls += "chip-ews";
+  else if (c === "OSC") cls += "chip-osc";
+  else if (c === "DSC") cls += "chip-dsc";
+  else cls += "chip-gen"; // fallback safe
+
+  return `<span class="${cls}">${c}</span>`;
+}
+
 
       function renderCutoffTable(cutoffs) {
         cutoffBody.innerHTML = "";
@@ -567,18 +623,21 @@
           return;
         }
         cats.forEach((cat) => {
-          const row = cutoffs[cat] || {};
-          const cutoff =
-            row.cutoff == null || row.cutoff === "" ? "--" : row.cutoff;
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${renderCategoryChip(cat)}</td>
-            <td>${row.seats || 0}</td>
-            <td>${row.totalInCategory || 0}</td>
-            <td>${cutoff}</td>
-          `;
-          cutoffBody.appendChild(tr);
-        });
+  if (cat === "SC") return; // 🚫 SC output disabled
+
+  const row = cutoffs[cat] || {};
+  const cutoff =
+    row.cutoff == null || row.cutoff === "" ? "--" : row.cutoff;
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${renderCategoryChip(cat)}</td>
+    <td>${row.seats || 0}</td>
+    <td>${row.totalInCategory || 0}</td>
+    <td>${cutoff}</td>
+  `;
+  cutoffBody.appendChild(tr);
+});
       }
 
       function getSeatValue(el) {
@@ -599,14 +658,13 @@
           if (vacancyName) params.set("vacancyName", vacancyName);
 
           const gen = getSeatValue(genSeatsEl);
-          const sc = getSeatValue(scSeatsEl);
           const bca = getSeatValue(bcaSeatsEl);
           const bcb = getSeatValue(bcbSeatsEl);
           const ews = getSeatValue(ewsSeatsEl);
           const osc = getSeatValue(oscSeatsEl);
           const dsc = getSeatValue(dscSeatsEl);
 
-          const totalSeats = gen + sc + bca + bcb + ews + osc + dsc;
+          const totalSeats = gen + bca + bcb + ews + osc + dsc;
           if (totalSeats === 0) {
             showError("कम से कम किसी एक category में seats भरें।");
             infoText.textContent = "Seats भरकर दुबारा try करें।";
@@ -614,7 +672,6 @@
           }
 
           if (gen) params.set("gen", String(gen));
-          if (sc) params.set("sc", String(sc));
           if (bca) params.set("bca", String(bca));
           if (bcb) params.set("bcb", String(bcb));
           if (ews) params.set("ews", String(ews));
@@ -682,7 +739,4 @@
     </script>
   </body>
 </html>
-
-
-
 
