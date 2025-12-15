@@ -1,402 +1,290 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8" />
-<title>Haryana Police Cutoff – Simulator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <title>Haryana Police Constable – Category-wise Cutoff (Expected)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<style>
-*{box-sizing:border-box;}
-:root{
-  --bg:#020617;
-  --card-bg:rgba(15,23,42,0.98);
-  --border:rgba(31,41,55,0.95);
-  --muted:#9ca3af;
-  --text:#e5e7eb;
-}
-body{
-  margin:0;
-  font-family:system-ui,sans-serif;
-  background:radial-gradient(circle at top,#1e293b 0,#020617 55%),radial-gradient(circle at bottom,#111827 0,#020617 55%);
-  color:var(--text);
-  min-height:100vh;
-  padding:16px;
-}
-.wrapper{max-width:1000px;margin:0 auto;}
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      color: #e5e7eb;
+      padding: 16px;
+    }
 
-.header{text-align:center;margin-bottom:18px;}
-.header h1{font-size:1.4rem;margin:6px 0;}
-.header p{font-size:.8rem;color:var(--muted);margin:0;}
+    .wrapper { max-width: 900px; margin: auto; }
 
-.card,.table-card{
-  padding:14px;
-  background:var(--card-bg);
-  border-radius:18px;
-  border:1px solid var(--border);
-  box-shadow:0 20px 35px rgba(0,0,0,0.5);
-}
-.layout-two{
-  display:grid;
-  grid-template-columns:1.2fr 1fr;
-  gap:12px;
-}
-@media(max-width:800px){
-  .layout-two{grid-template-columns:1fr;}
-}
+    .card {
+      background: rgba(15,23,42,0.98);
+      border: 1px solid rgba(31,41,55,0.95);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
 
-.card-title{
-  font-size:.92rem;
-  font-weight:600;
-  margin-bottom:8px;
-}
+    h1 {
+      text-align: center;
+      margin: 0 0 6px;
+      font-size: 1.3rem;
+    }
 
-.controls-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
-.field{flex:1;min-width:150px;}
-.field.small{flex:0 0 110px;}
-label{font-size:.72rem;color:var(--muted);margin-bottom:3px;display:block;}
+    p.sub {
+      text-align: center;
+      margin: 0 0 14px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
 
-input,select{
-  width:100%;
-  padding:7px 10px;
-  border-radius:999px;
-  background:rgba(15,23,42,0.96);
-  border:1px solid rgba(75,85,99,0.8);
-  color:var(--text);
-  font-size:.83rem;
-}
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .field { flex: 1; min-width: 140px; }
 
-.calc-btn{
-  padding:9px 20px;
-  border:none;
-  border-radius:999px;
-  background:linear-gradient(120deg,#2563eb,#4f46e5,#a855f7);
-  color:white;
-  cursor:pointer;
-  font-size:.82rem;
-  margin-top:6px;
-}
+    label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      display: block;
+      margin-bottom: 4px;
+    }
 
-.table-wrapper{
-  border:1px solid rgba(75,85,99,0.85);
-  border-radius:12px;
-  overflow:hidden;
-  margin-top:6px;
-}
+    select, input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(75,85,99,0.8);
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      outline: none;
+    }
 
-table{width:100%;border-collapse:collapse;}
-th{padding:7px;background:#020617;font-size:.75rem;text-align:left;}
-td{padding:7px;font-size:.78rem;}
-tr:nth-child(even) td{background:rgba(15,23,42,0.95);}
+    button {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(120deg,#2563eb,#4f46e5,#a855f7);
+      color: #fff;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
 
-.chip{padding:2px 8px;border-radius:999px;font-size:.7rem;}
-.chip-gen{background:#374151;}
-.chip-cat{background:#1e3a8a;}
-.chip-ews{background:#a3e635;color:#111;}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+    }
 
-.error{
-  display:none;
-  background:rgba(153,27,27,0.35);
-  border:1px solid rgba(239,68,68,0.7);
-  padding:8px;
-  border-radius:8px;
-  margin-top:6px;
-  font-size:.8rem;
-  color:#fecaca;
-}
+    th, td {
+      padding: 8px;
+      font-size: 0.8rem;
+      text-align: center;
+    }
 
-/* Terms */
-.tnc-box{
-  margin-top:18px;
-  padding:14px;
-  border-radius:16px;
-  border:1px solid rgba(75,85,99,0.8);
-  background:rgba(15,23,42,0.9);
-}
-.tnc-title{font-size:.92rem;margin-bottom:6px;color:#f59e0b;}
-.tnc-list{font-size:.78rem;line-height:1.45;padding-left:20px;margin:0;}
-.tnc-footer{margin-top:8px;font-size:.75rem;color:#93c5fd;border-top:1px solid rgba(75,85,99,0.7);padding-top:6px;}
+    th { background: #020617; }
+    tr:nth-child(even) td { background: rgba(15,23,42,0.98); }
 
-/* Social */
-.social-footer{
-  margin-top:18px;
-  padding:12px;
-  border-radius:18px;
-  border:1px solid rgba(75,85,99,0.9);
-  background:rgba(15,23,42,0.95);
-}
-.social-footer-row{display:flex;gap:8px;flex-wrap:wrap;}
-.social-pill{
-  padding:6px 10px;
-  border-radius:999px;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  border:1px solid rgba(75,85,99,0.9);
-  font-size:.8rem;
-  color:white;
-  text-decoration:none;
-}
-.social-pill img{height:18px;}
-.insta{background:rgba(250,204,21,0.12);border-color:#facc15;}
-.wh{background:rgba(34,197,94,0.12);border-color:#22c55e;}
-.tg{background:rgba(56,189,248,0.12);border-color:#38bdf8;}
-.yt{background:rgba(248,113,113,0.12);border-color:#ef4444;}
-.web{background:rgba(129,140,248,0.12);border-color:#818cf8;}
-</style>
+    /* CATEGORY CHIPS */
+    .chip { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+    .chip-gen { background:#374151; }
+    .chip-bca { background:#0284c7; }
+    .chip-bcb { background:#7c3aed; }
+    .chip-ews { background:#84cc16; color:#022c22; }
+    .chip-osc { background:#0ea5e9; }
+    .chip-dsc { background:#dc2626; }
+
+    .error {
+      display:none;
+      margin-top: 8px;
+      padding: 8px;
+      background: rgba(127,29,29,0.4);
+      border: 1px solid rgba(248,113,113,0.7);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #fecaca;
+    }
+
+    /* TERMS */
+    .tnc-box {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: rgba(22,30,48,0.95);
+      border: 1px solid rgba(75,85,99,0.8);
+      border-radius: 14px;
+    }
+    .tnc-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fcd34d;
+    }
+    .tnc-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.78rem;
+      color: #d1d5db;
+      line-height: 1.45;
+    }
+    .tnc-list li { margin-bottom: 6px; }
+    .tnc-footer {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: #a5f3fc;
+      padding-top: 8px;
+      border-top: 1px solid rgba(75,85,99,0.6);
+    }
+
+    /* SOCIAL */
+    .social-footer { margin-top: 16px; }
+    .social-footer-row { display:flex; gap:8px; flex-wrap:wrap; }
+
+    .social-pill {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(75,85,99,0.9);
+      color:#fff;
+      text-decoration:none;
+      font-size:0.8rem;
+    }
+    .social-pill img { width:18px; height:18px; }
+    .insta { border-color:#facc15; }
+    .wh { border-color:#22c55e; }
+    .tg { border-color:#38bdf8; }
+    .yt { border-color:#ef4444; }
+  </style>
 </head>
 
 <body>
 <div class="wrapper">
 
-<div class="header">
-  <h1>Haryana Police – Cutoff Simulator</h1>
-  <p>Constable / SI Male–Female के लिए category wise अनुमानित cutoff (Posts × 10)</p>
-</div>
+  <div class="card">
+    <h1>Haryana Police Constable Expected Cutoff (Unofficial)</h1>
+    <p class="sub">Gender wise & Category wise अनुमानित cutoff (Unofficial)</p>
 
-<div class="layout-two">
-
-<!-- LEFT -->
-<div class="card">
-
-  <div class="card-title">Select Post Type</div>
-
-  <div class="controls-row">
-    <div class="field">
-      <label>Post Type</label>
-      <select id="postType">
-        <option value="">– Select –</option>
-        <option value="CONSTABLE_MALE">Constable (Male)</option>
-        <option value="CONSTABLE_FEMALE">Constable (Female)</option>
-        <option value="SI_MALE">Sub-Inspector (Male)</option>
-        <option value="SI_FEMALE">Sub-Inspector (Female)</option>
-      </select>
+    <!-- GENDER -->
+    <div class="row">
+      <div class="field">
+        <label>Haryana Police Constable Gender चुनें</label>
+        <select id="gender">
+          <option value="">– Select Gender –</option>
+          <option value="MALE">Haryana Police Constable Male</option>
+          <option value="FEMALE">Haryana Police Constable Female</option>
+        </select>
+      </div>
     </div>
-  </div>
 
-  <div class="card-title">Vacancy Posts (Category-wise)</div>
+    <!-- SEATS -->
+    <div class="row">
+      <div class="field"><label>GEN</label><input id="gen" type="number" min="0"></div>
+      <div class="field"><label>BCA</label><input id="bca" type="number" min="0"></div>
+      <div class="field"><label>BCB</label><input id="bcb" type="number" min="0"></div>
+      <div class="field"><label>EWS</label><input id="ews" type="number" min="0"></div>
+      <div class="field"><label>OSC</label><input id="osc" type="number" min="0"></div>
+      <div class="field"><label>DSC</label><input id="dsc" type="number" min="0"></div>
+    </div>
 
-  <div class="controls-row">
-    <div class="field small"><label>GEN</label><input id="genPosts" type="number"></div>
-    <div class="field small"><label>OSC</label><input id="oscPosts" type="number"></div>
-    <div class="field small"><label>DSC</label><input id="dscPosts" type="number"></div>
-    <div class="field small"><label>BCA</label><input id="bcaPosts" type="number"></div>
-    <div class="field small"><label>BCB</label><input id="bcbPosts" type="number"></div>
-    <div class="field small"><label>EWS</label><input id="ewsPosts" type="number"></div>
-  </div>
+    <button id="calcBtn">⚡ Police Cutoff निकालें</button>
+    <div id="errorBox" class="error"></div>
 
-  <button class="calc-btn" id="calcBtn">⚡ Police Cutoff निकालें</button>
-
-  <div id="errorBox" class="error"></div>
-
-</div>
-
-<!-- RIGHT -->
-<div class="table-card">
-
-  <div class="card-title">Category-wise Cutoff (Posts × 10)</div>
-
-  <div class="table-wrapper">
+    <!-- TABLE -->
     <table>
       <thead>
         <tr>
           <th>Category</th>
-          <th>Posts</th>
-          <th>Target</th>
-          <th>Sheet Candidates</th>
+          <th>Seats</th>
+          <th>Candidates</th>
           <th>Cutoff</th>
         </tr>
       </thead>
-      <tbody id="cutoffBody">
-        <tr><td colspan="5" style="color:var(--muted)">Select post & fill seats…</td></tr>
-      </tbody>
+      <tbody id="tbody"></tbody>
     </table>
   </div>
 
-  <div style="margin-top:10px;font-size:.8rem;color:var(--muted);">
-    Sheet Total: <span id="totalCandText">--</span> · 
-    Last Calc: <span id="calcTimeText">--</span>
+  <!-- TERMS -->
+  <div class="tnc-box">
+    <div class="tnc-title">⚠️ Terms & Conditions</div>
+    <ul class="tnc-list">
+      <li>यह tool सिर्फ <strong>CET Haryana Police applicants</strong> के लिए unofficial cutoff estimate देता है।</li>
+      <li>Cutoff calculation user-submitted sheet data पर आधारित है।</li>
+      <li><strong>Posts × 10 target rule</strong> apply होता है (उदा: 500 posts → 5000 target)।</li>
+      <li>Backend केवल उसी gender (Male/Female) का data उपयोग करता है जो आपने चुना है।</li>
+      <li>Official cutoff हमेशा HSSC / Police Department द्वारा जारी की जाएगी।</li>
+    </ul>
+    <div class="tnc-footer">✔ इस tool का उपयोग करके आप सभी terms स्वीकार करते हैं।</div>
   </div>
 
-</div>
-</div>
-
-<!-- TERMS -->
-<div class="tnc-box">
-  <div class="tnc-title">⚠️ Terms & Conditions</div>
-  <ul class="tnc-list">
-    <li>यह tool सिर्फ CET Haryana Police applicants के लिए unofficial cutoff estimate प्रदान करता है।</li>
-    <li>Cutoff calculation user-submitted sheet data पर आधारित होता है।</li>
-    <li>Posts × 10 target rule apply होता है (उदा. 500 posts → target 5000)।</li>
-    <li>Backend केवल उसी gender (Male/Female) का data इस्तेमाल करेगा जो आपने चुना है।</li>
-    <li>Official cutoff हमेशा HSSC / Police department द्वारा जारी की जाएगी।</li>
-  </ul>
-  <div class="tnc-footer">✔ इस tool का उपयोग करके आप ऊपर दिए गए सभी terms को स्वीकार करते हैं।</div>
-</div>
-
-<!-- SOCIAL FOOTER -->
-<div class="social-footer">
-  <p style="margin:0 0 6px;font-weight:600;">Follow for updates & notifications:</p>
-
-  <div class="social-footer-row">
-    <a href="https://instagram.com/adv_kanha73" class="social-pill insta" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"> Instagram
-    </a>
-
-    <a href="https://whatsapp.com/channel/0029Vb6kNhq8fewpVWfe1m1s" class="social-pill wh" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"> WhatsApp Channel
-    </a>
-
-    <a href="https://t.me/cetranker" class="social-pill tg" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"> Telegram
-    </a>
-
-    <a href="https://youtube.com/@cetranker" class="social-pill yt" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"> YouTube
-    </a>
-
-    <a href="https://your-website-url.com" class="social-pill web" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/OOjs_UI_icon_globe-progressive.svg"> Website
-    </a>
+  <!-- SOCIAL -->
+  <div class="social-footer">
+    <div class="social-footer-row">
+      <a href="https://instagram.com/adv_kanha73" target="_blank" class="social-pill insta">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"> Instagram
+      </a>
+      <a href="https://whatsapp.com/channel/0029Vb6kNhq8fewpVWfe1m1s" target="_blank" class="social-pill wh">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"> WhatsApp
+      </a>
+      <a href="https://t.me/cetranker" target="_blank" class="social-pill tg">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"> Telegram
+      </a>
+      <a href="https://youtube.com/@cetranker" target="_blank" class="social-pill yt">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"> YouTube
+      </a>
+    </div>
   </div>
-</div>
 
 </div>
 
 <script>
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHo7ecIYJP-ekEOfsCnD1BUtbSJ_nF6ZNZ2vi_hsQb6fyA0GBurHQTxWbPrm0DKZzOIQ/exec";
-
-const postTypeEl = document.getElementById("postType");
-const genPostsEl = document.getElementById("genPosts");
-const oscPostsEl = document.getElementById("oscPosts");
-const dscPostsEl = document.getElementById("dscPosts");
-const bcaPostsEl = document.getElementById("bcaPosts");
-const bcbPostsEl = document.getElementById("bcbPosts");
-const ewsPostsEl = document.getElementById("ewsPosts");
-
-const cutoffBody = document.getElementById("cutoffBody");
+const tbody = document.getElementById("tbody");
 const errorBox = document.getElementById("errorBox");
 
-function setDefaults(pt){
-  if(pt==="CONSTABLE_MALE"){
-    genPostsEl.value=1800;
-    oscPostsEl.value=450;
-    dscPostsEl.value=450;
-    bcaPostsEl.value=700;
-    bcbPostsEl.value=400;
-    ewsPostsEl.value=500;
-  }
-  else if(pt==="CONSTABLE_FEMALE"){
-    genPostsEl.value=360;
-    oscPostsEl.value=90;
-    dscPostsEl.value=90;
-    bcaPostsEl.value=140;
-    bcbPostsEl.value=80;
-    ewsPostsEl.value=100;
-  }
-  else{
-    genPostsEl.value="";
-    oscPostsEl.value="";
-    dscPostsEl.value="";
-    bcaPostsEl.value="";
-    bcbPostsEl.value="";
-    ewsPostsEl.value="";
-  }
-}
+function chip(c){ return `<span class="chip chip-${c.toLowerCase()}">${c}</span>`; }
 
-postTypeEl.addEventListener("change",()=>{
-  setDefaults(postTypeEl.value);
-  cutoffBody.innerHTML=`<tr><td colspan="5" style="color:#9ca3af">Fill seats to generate cutoff…</td></tr>`;
-});
+document.getElementById("calcBtn").onclick = async () => {
+  errorBox.style.display = "none";
+  tbody.innerHTML = "";
 
-function catChip(x){
-  const c=x.toUpperCase();
-  if(c==="GEN") return `<span class="chip chip-gen">${c}</span>`;
-  if(c==="EWS") return `<span class="chip chip-ews">${c}</span>`;
-  return `<span class="chip chip-cat">${c}</span>`;
-}
-
-async function calculate(){
-  errorBox.style.display="none";
-
-  const pt = postTypeEl.value;
-  if(!pt){
-    errorBox.innerText="कृपया पहले post type चुनें।";
-    errorBox.style.display="block";
+  const gender = document.getElementById("gender").value;
+  if (!gender) {
+    errorBox.textContent = "कृपया Male या Female select करें।";
+    errorBox.style.display = "block";
     return;
   }
 
-  const map={
-    "CONSTABLE_MALE":{role:"CONSTABLE",gender:"Male"},
-    "CONSTABLE_FEMALE":{role:"CONSTABLE",gender:"Female"},
-    "SI_MALE":{role:"SI",gender:"Male"},
-    "SI_FEMALE":{role:"SI",gender:"Female"},
-  };
-
-  const {role,gender} = map[pt];
-
-  const seats={
-    GEN:+genPostsEl.value||0,
-    OSC:+oscPostsEl.value||0,
-    DSC:+dscPostsEl.value||0,
-    BCA:+bcaPostsEl.value||0,
-    BCB:+bcbPostsEl.value||0,
-    EWS:+ewsPostsEl.value||0,
-  };
-
-  const total=Object.values(seats).reduce((a,b)=>a+b,0);
-  if(total===0){
-    errorBox.innerText="कम से कम किसी एक category में seats भरें।";
-    errorBox.style.display="block";
-    return;
-  }
-
-  const MULT=10;
-  const params=new URLSearchParams();
-  params.set("mode","police_cutoff");
-  params.set("role",role);
-  params.set("gender",gender);
-  params.set("multiplier",MULT);
-
-  Object.keys(seats).forEach(k=>{
-    if(seats[k]>0){
-      params.set(k.toLowerCase()+"Posts",seats[k]);
-      params.set(k.toLowerCase()+"Target",seats[k]*MULT);
-    }
+  const p = new URLSearchParams({
+    mode:"cutoff",
+    gender,
+    gen:gen.value||0,
+    bca:bca.value||0,
+    bcb:bcb.value||0,
+    ews:ews.value||0,
+    osc:osc.value||0,
+    dsc:dsc.value||0
   });
 
-  const res=await fetch(BACKEND_URL+"?"+params.toString());
-  const data=await res.json();
+  const res = await fetch(BACKEND_URL + "?" + p.toString());
+  const data = await res.json();
 
-  if(data.error){
-    errorBox.innerText=data.error;
-    errorBox.style.display="block";
+  if (data.error) {
+    errorBox.textContent = data.error;
+    errorBox.style.display = "block";
     return;
   }
 
-  const rows=data.results||[];
-
-  cutoffBody.innerHTML="";
-  rows.forEach(r=>{
-    cutoffBody.innerHTML+=`
+  Object.keys(data.cutoffs||{}).forEach(c=>{
+    const r=data.cutoffs[c];
+    tbody.innerHTML+=`
       <tr>
-        <td>${catChip(r.category)}</td>
-        <td>${r.posts}</td>
-        <td>${r.target}</td>
-        <td>${r.availableCandidates ?? "--"}</td>
+        <td>${chip(c)}</td>
+        <td>${r.seats}</td>
+        <td>${r.totalInCategory}</td>
         <td>${r.cutoff ?? "--"}</td>
       </tr>`;
   });
-
-  document.getElementById("totalCandText").innerText=data.totalCandidates||"--";
-  if(data.calcTime){
-    const dt=new Date(data.calcTime);
-    document.getElementById("calcTimeText").innerText=
-      dt.toLocaleDateString("hi-IN")+" "+dt.toLocaleTimeString("hi-IN",{hour:"2-digit",minute:"2-digit"});
-  }
-}
-
-document.getElementById("calcBtn").addEventListener("click",calculate);
+};
 </script>
-
 </body>
 </html>
