@@ -2,148 +2,679 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8" />
-  <title>CET Ranker – CET Marks, Rank, Cutoff & Analysis</title>
-  <meta name="robots" content="index, follow" />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="CET Ranker – CET Exam Rank & Analysis" />
-  <meta property="og:description" content="Unofficial CET rank calculator, syllabus, job updates and study resources." />
-  <meta property="og:url" content="https://cetranker.com/" />
-  <meta property="og:image" content="https://cetranker.com/logo.png" />
-
-  <!-- Google Discover / News signals -->
-  <meta name="googlebot" content="index, follow" />
-  <meta name="news_keywords" content="CET Rank, CET Exam, CET Cutoff, CET Jobs" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="CET Ranker is an unofficial educational platform for CET exam marks analysis, rank estimation, syllabus, job updates and study material." />
-
-  <!-- Adsense (replace ca-pub-XXXX later) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXX"
-     crossorigin="anonymous"></script>
-
-  <!-- pdf.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
+  <title>CET Live Rank – Result</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body{margin:0;font-family:system-ui;background:#0f172a;color:#e5e7eb}
-    a{text-decoration:none}
-
-    /* ===== HEADER ===== */
-    header{position:sticky;top:0;z-index:999;background:#020617;border-bottom:1px solid #1f2937}
-    .nav{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:10px}
-    .logo{display:flex;align-items:center;gap:8px;font-weight:700}
-    .logo img{width:32px;height:32px}
-
-    .menu{display:flex;gap:14px}
-    .menu a{color:#cbd5f5;font-size:14px;padding:4px 6px;border-radius:6px}
-    .menu a.active,.menu a:hover{color:#38bdf8;background:#020617}
-
-    .hamburger{display:none;font-size:22px;cursor:pointer}
-
-    @media(max-width:768px){
-      .menu{display:none;flex-direction:column;position:absolute;top:56px;left:0;width:100%;background:#020617;border-top:1px solid #1f2937}
-      .menu.show{display:flex}
-      .hamburger{display:block}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
     }
+    body {
+      min-height: 100vh;
+      background: #020617;
+      color: #e5e7eb;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 16px;
+    }
+    .wrapper {
+      width: 100%;
+      max-width: 480px;
+      margin: auto;
+    }
+    .card {
+      background: radial-gradient(circle at top left, #1e293b, #020617 60%);
+      border-radius: 16px;
+      padding: 18px 16px 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f9fafb;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(15, 23, 42, 0.8);
+      color: #cbd5f5;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .pill {
+      flex: 1 1 calc(50% - 4px);
+      min-width: calc(50% - 4px);
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      gap: 6px;
+    }
+    .pill-label {
+      color: #9ca3af;
+      font-size: 10px;
+    }
+    .pill-value {
+      color: #e5e7eb;
+      font-weight: 600;
+      font-size: 11px;
+    }
+    .marks-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 12px;
+      color: #bfdbfe;
+      margin-top: 8px;
+    }
+    .marks-chip span.score {
+      font-size: 15px;
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+    .social-footer {
+  margin-top: 18px;
+  padding: 10px 12px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(31, 41, 55, 0.9);
+  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), #020617);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.85);
+  font-size: 0.8rem;
+  color: #e5e7eb;
+}
 
-    /* ===== SEARCH BAR ===== */
-    .search-bar{position:sticky;top:56px;z-index:998;background:#020617;padding:8px;border-bottom:1px solid #1f2937}
-    .search-bar input{width:100%;padding:10px;border-radius:20px;border:1px solid #334155;background:#071027;color:#fff}
+.social-footer-title {
+  font-size: 0.8rem;
+  margin: 0 0 6px;
+  color: #e5e7eb;
+  font-weight: 600;
+}
 
-    /* ===== CARD ===== */
-    .card{max-width:480px;margin:16px auto;background:#020617;border-radius:20px;padding:18px;border:1px solid #1f2937}
+.social-footer-sub {
+  margin: 0 0 10px;
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
 
-    button{width:100%;padding:10px;border:none;border-radius:999px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:600}
+.social-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-    /* ===== CUTOFF TABLE ===== */
-    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
-    th,td{border:1px solid #1f2937;padding:6px;text-align:center}
-    th{background:#071027}
+.social-pill {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(75, 85, 99, 0.9);
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
+}
 
-    /* ===== ADS ===== */
-    .ad-box{max-width:480px;margin:12px auto;text-align:center}
+.social-pill img {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
 
-    footer{background:#000;padding:16px;text-align:center;font-size:14px}
+/* Alag-alag brand ke हल्के रंग */
+.social-pill.insta {
+  border-color: rgba(250, 204, 21, 0.8);
+  background: rgba(250, 204, 21, 0.14);
+}
+
+.social-pill.wh {
+  border-color: rgba(34, 197, 94, 0.85);
+  background: rgba(34, 197, 94, 0.16);
+}
+
+.social-pill.tg {
+  border-color: rgba(56, 189, 248, 0.85);
+  background: rgba(56, 189, 248, 0.16);
+}
+
+.social-pill.yt {
+  border-color: rgba(248, 113, 113, 0.9);
+  background: rgba(248, 113, 113, 0.18);
+}
+
+.social-pill.web {
+  border-color: rgba(129, 140, 248, 0.9);
+  background: rgba(129, 140, 248, 0.18);
+}
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+    .ranks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .rank-card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 12px;
+      padding: 8px 9px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+    .rank-label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+    .rank-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #facc15;
+    }
+    .rank-subtext {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 1px;
+    }
+    .error {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.4);
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(248, 113, 113, 0.7);
+    }
+    .info {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+    }
+    .footer {
+      margin-top: 10px;
+      font-size: 10px;
+      color: #6b7280;
+      text-align: center;
+    }
+    .footer span {
+      color: #9ca3af;
+    }
+    .refresh-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: none;
+      outline: none;
+      background: linear-gradient(90deg, #2563eb, #4f46e5);
+      color: #f9fafb;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+      cursor: pointer;
+    }
+    .refresh-btn:disabled {
+      opacity: 0.7;
+      cursor: default;
+      box-shadow: none;
+    }
+    .small-text {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 6px;
+      text-align: center;
+    }
+    .roll-input-wrap {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+    }
+    .roll-input {
+      flex: 1;
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+      outline: none;
+    }
+    .roll-go-btn {
+      border-radius: 999px;
+      padding: 7px 12px;
+      border: none;
+      background: #16a34a;
+      color: #f9fafb;
+      font-size: 12px;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="title">HSSC CET (Group C) – Live Rank</div>
+      <div class="subtitle">PDF upload के बाद आपका result यहाँ दिखेगा</div>
 
-<!-- ===== HEADER ===== -->
-<header>
-  <div class="nav">
-    <div class="logo">
-      <img src="logo.png" alt="CET Ranker" /> CET Ranker
+      <div style="text-align:center; margin-bottom:8px;">
+        <span class="badge" id="rollBadge">Roll: --</span>
+      </div>
+
+      <!-- Roll manual input (अगर URL से ना मिले) -->
+      <div id="rollInputBox" style="display:none;">
+        <div class="small-text">
+             अगर ऊपर URL से roll नहीं आया है, तो नीचे अपना roll भरें:
+        </div>
+        <div class="roll-input-wrap">
+          <input id="rollInput" class="roll-input" placeholder="अपना Roll number लिखें" />
+          <button class="roll-go-btn" id="rollGoBtn">Go</button>
+        </div>
+      </div>
+
+      <div class="section-title">उम्मीदवार की जानकारी</div>
+      <div class="row">
+        <div class="pill">
+          <div class="pill-label">नाम</div>
+          <div class="pill-value" id="nameText">--</div>
+        </div>
+        <div class="pill">
+          <div class="pill-label">Category</div>
+          <div class="pill-value" id="catText">--</div>
+        </div>
+        <div class="pill">
+          <div class="pill-label">Gender</div>
+          <div class="pill-value" id="genderText">--</div>
+        </div>
+        <div class="pill">
+          <div class="pill-label">D.O.B</div>
+          <div class="pill-value" id="dobText">--</div>
+        </div>
+        <div class="pill">
+          <div class="pill-label">Exam Date</div>
+          <div class="pill-value" id="examDateText">--</div>
+        </div>
+      </div>
+
+      <div class="marks-chip">
+        <span>Marks</span>
+        <span class="score" id="marksText">--</span>
+      </div>
+
+      <div class="section-title">Rank Detail</div>
+      <div class="ranks-grid">
+        <div class="rank-card">
+          <div class="rank-label">Overall Rank</div>
+          <div class="rank-value" id="overallRankText">--</div>
+          <div class="rank-subtext">सभी candidates में</div>
+        </div>
+        <div class="rank-card">
+          <div class="rank-label">Category Rank</div>
+          <div class="rank-value" id="catRankText">--</div>
+          <div class="rank-subtext">आपकी category में</div>
+        </div>
+      </div>
+
+      <button class="refresh-btn" id="refreshBtn">
+        <span>🔄 Refresh Rank</span>
+      </button>
+
+      <button
+  onclick="openCutoffWithWhatsApp();"
+  style="
+    width:100%;
+    margin-top:10px;
+    padding:10px 16px;
+    border:none;
+    border-radius:999px;
+    background:linear-gradient(90deg,#059669,#16a34a);
+    color:white;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  ">
+  📊 Cutoff देखें (Vacancy-wise)
+</button>
+
+      <div id="errorBox" class="error" style="display:none;"></div>
+
+      <div class="info" id="infoText">डेटा लोड होने की प्रतीक्षा...</div>
+<!-- 🔻🔻🔻  यहाँ Disclaimer Paste करें  🔻🔻🔻 -->
+<div class="section" 
+     style="margin-top:18px; padding:14px; background:rgba(15,23,42,0.7); 
+            border-radius:12px; border:1px solid rgba(148,163,184,0.2); 
+            font-size:12px; line-height:1.5; color:#e5e7eb;">
+    
+    <h2 style="font-size:14px; margin-bottom:6px; color:#facc15;">
+        महत्वपूर्ण सूचना (Disclaimer)
+    </h2>
+    यह <b>कोई आधिकारिक सरकारी वेबसाइट नहीं</b> है और न ही यह HSSC या किसी सरकारी संस्था से जुड़ी हुई है।  
+    यह केवल विद्यार्थियों की मदद के लिए बनाया गया <b>Unofficial Rank Calculator</b> है।
+
+    <h2 style="margin-top:12px; font-size:14px; color:#facc15;">
+        Terms &amp; Conditions (शर्तें)
+    </h2>
+    <ul style="margin-left:15px; margin-top:6px;">
+      <li>आप जो भी PDF अपलोड करते हैं, वह केवल रैंक निकालने के उद्देश्य से उपयोग की जाती है।</li>
+      <li>आपका डेटा किसी तीसरे व्यक्ति को शेयर, बेचा या गलत तरीके से उपयोग नहीं किया जाता।</li>
+      <li>रैंक का calculation official नहीं है, यह user-submitted डेटा पर आधारित है।</li>
+      <li>किसी भी तरह की Official Merit List या Final Decision हमेशा HSSC के official result पर आधारित होगा।</li>
+      <li>इस टूल का उपयोग करते समय किसी भी प्रकार की गलतफहमी या नुकसान के लिए developer जिम्मेदार नहीं होगा।</li>
+    </ul>
+</div>
+
+<!-- 🔺🔺🔺  Disclaimer Section Ends  🔺🔺🔺 -->
+<!-- SOCIAL FOOTER: Instagram + WhatsApp + (future) Telegram / YouTube / Website -->
+      <div class="social-footer">
+        <p class="social-footer-title">
+          CET updates, cutoff analysis, PDFs & notifications एक जगह:
+        </p>
+        <p class="social-footer-sub">
+          Instagram पर reels/analysis, WhatsApp & Telegram पर instant notification,
+          YouTube पर detailed videos, और website पर पूरा material मिलेगा।
+        </p>
+
+        <div class="social-footer-row">
+          <!-- Instagram -->
+          <a
+            href="https://instagram.com/adv_kanha73"
+            target="_blank"
+            class="social-pill insta"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+              alt="Instagram"
+            />
+            <span>Instagram · @adv_kanha73</span>
+          </a>
+
+          <!-- WhatsApp Channel -->
+          <a
+            href="https://whatsapp.com/channel/0029Vb6kNhq8fewpVWfe1m1s"
+            target="_blank"
+            class="social-pill wh"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="WhatsApp"
+            />
+            <span>WhatsApp Channel</span>
+          </a>
+
+          <!-- Telegram (baad me apna link daal dena) -->
+          <a
+            href="https://t.me/your_telegram_channel"
+            target="_blank"
+            class="social-pill tg"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+              alt="Telegram"
+            />
+            <span>Telegram Channel</span>
+          </a>
+
+          <!-- YouTube (baad me change karna) -->
+          <a
+            href="https://youtube.com/@your_youtube_handle"
+            target="_blank"
+            class="social-pill yt"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
+              alt="YouTube"
+            />
+            <span>YouTube Channel</span>
+          </a>
+
+          <!-- Website (jab bhi ready ho) -->
+          <a
+            href="https://your-website-url.com"
+            target="_blank"
+            class="social-pill web"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/e/e0/OOjs_UI_icon_globe-progressive.svg"
+              alt="Website"
+            />
+            <span>Official Website</span>
+          </a>
+        </div>
+      </div>
+    </div> <!-- .wrapper end -->
+    
+<div style="
+    margin-top:18px;
+    text-align:center;
+    font-size:14px;
+">
+  <a href="https://instagram.com/adv_kanha73" 
+     target="_blank" 
+     style="text-decoration:none; color:#f9fafb; display:inline-flex; align-items:center; gap:6px;">
+
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" 
+         alt="Instagram" 
+         style="width:20px; height:20px; border-radius:4px;" />
+
+    <span style="font-weight:600;">@adv_kanha73</span>
+  </a>
+</div>
+
+      <div class="footer" id="footerInfo">
+        <span>Total Candidates:</span> <span id="totalCandText">--</span> ·
+        <span>Last update:</span> <span id="rankTimeText">--</span>
+      </div>
     </div>
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
-    <nav class="menu" id="menu">
-      <a href="index.html" class="active">Home</a>
-      <a href="search.html">Search</a>
-      <a href="cutoff.html">Cutoff</a>
-      <a href="mains-syllabus.html">Mains Syllabus</a>
-      <a href="job-updates.html">Job Updates</a>
-      <a href="study-material.html">Study Material</a>
-      <a href="contact.html">Contact</a>
-      <a href="privacy-policy.html">Privacy</a>
-      <a href="terms.html">Terms</a>
-    </nav>
   </div>
-</header>
 
-<!-- ===== STICKY SEARCH ===== -->
-<div class="search-bar">
-  <input type="text" placeholder="Search CET rank, cutoff, syllabus..." />
-</div>
+  <script>
+    // ⬇⬇⬇ यहां अपना Apps Script Web App URL डालें (जो /exec से खत्म होता है) ⬇⬇⬇
+    const BACKEND_URL =
+      "https://script.google.com/macros/s/AKfycbwHo7ecIYJP-ekEOfsCnD1BUtbSJ_nF6ZNZ2vi_hsQb6fyA0GBurHQTxWbPrm0DKZzOIQ/exec";
 
-<!-- ===== ADS TOP ===== -->
-<div class="ad-box">
-  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="123456" data-ad-format="auto"></ins>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+    function openCutoffWithWhatsApp() {
+  // 1) WhatsApp channel new tab me open karo
+  try {
+    window.open(
+      "https://whatsapp.com/channel/0029Vb6kNhq8fewpVWfe1m1s",
+      "_blank"
+    );
+  } catch (e) {
+    console.log("WhatsApp open blocked:", e);
+  }
 
-<!-- ===== MAIN CARD ===== -->
-<div class="card">
-  <h2>HSSC CET Marks Rank 2025</h2>
-  <p style="font-size:13px;color:#9ca3af;line-height:1.6">
-    सिर्फ <b>आधिकारिक HSSC CET Marks Card PDF</b> अपलोड करें। सिस्टम PDF से आपके Marks निकाल कर <b>ऑटोमैटिक रैंक</b> calculate करेगा।<br/>
-    रैंक उतनी ही सटीक होगी जितने ज्यादा लोग इस लिंक को शेयर करके यहाँ अपनी PDF अपलोड करेंगे।
-  </p>
+  // 2) Thoda sa delay dekar current tab me cutoff.html open karo
+  setTimeout(function () {
+    window.location.href = "cutoff.html";
+  }, 700); // 700ms delay, chahe to 500 ya 1000 bhi kar sakte ho
+}
 
-  <input type="file" accept="application/pdf" />
-  <br><br>
-  <button>Upload & View Rank</button>
+    
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
 
-  <hr style="border:0;border-top:1px dashed #1f2937;margin:16px 0" />
+    function showError(msg) {
+      const box = document.getElementById("errorBox");
+      box.textContent = msg;
+      box.style.display = "block";
+      document.getElementById("infoText").textContent = "Error आया, ऊपर message देखें।";
+    }
 
-  <p style="font-size:13px;font-weight:600">पहले अपलोड कर चुका हूँ — सीधे Result देखें</p>
-  <input type="text" placeholder="अपना Roll number दर्ज करें (उदा. 5325003383)" style="width:100%;padding:10px;border-radius:12px;border:1px solid #334155;background:#071027;color:#fff;margin:6px 0" />
-  <button>Go</button>
+    function clearError() {
+      const box = document.getElementById("errorBox");
+      box.style.display = "none";
+      box.textContent = "";
+    }
 
-  <p style="font-size:12px;color:#9ca3af;line-height:1.5;margin-top:8px">
-    यदि आप पहले PDF अपलोड कर चुके है तो आप सीधा रोल नंबर डाल कर अपनी रैंक और कटऑफ देख सकते है।<br/>
-    सभी प्रकार की updates के लिए WhatsApp channel को फॉलो करे — बाद में ये चैनल आपके बहुत काम आएगा।
-  </p>
+    async function fetchLiveRank(customRoll) {
+      try {
+        clearError();
 
-  <p style="text-align:center;margin-top:10px">
-    <a href="https://instagram.com/adv_kanha73" target="_blank" style="color:#f472b6;font-weight:600">Instagram: @adv_kanha73</a>
-  </p>
+        let roll = customRoll || getQueryParam("roll");
+        const rollInputEl = document.getElementById("rollInput");
 
-  <p style="font-size:11px;color:#fca5a5;margin-top:10px">
-    Note: गलत / Blank / Non-HSSC PDF अपलोड करने पर एरर दिखेगा।
-  </p>
-</div>
+        if (!roll) {
+          // अगर URL से roll नहीं है, तो input से लें
+          if (rollInputEl && rollInputEl.value.trim()) {
+            roll = rollInputEl.value.trim();
+          }
+        }
 
-<!-- ===== ADS BOTTOM ===== -->
-<div class="ad-box">
-  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="654321" data-ad-format="auto"></ins>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+        if (!roll) {
+          document.getElementById("infoText").textContent =
+            "कृपया अपना roll number भरें और Refresh Rank दबाएँ।";
+          document.getElementById("rollInputBox").style.display = "block";
+          return;
+        }
 
-<footer>
-  <p>© 2025 CET Ranker | Unofficial Educational Platform</p>
-</footer>
+        document.getElementById("rollInputBox").style.display = "roll" in (getQueryParam("roll") ? {} : {}) ? "none" : "block";
 
-<script>
-function toggleMenu(){document.getElementById('menu').classList.toggle('show');}
-</script>
+        document.getElementById("rollBadge").textContent = "Roll: " + roll;
+        document.getElementById("infoText").textContent = "Rank data load हो रहा है...";
+        const btn = document.getElementById("refreshBtn");
+        btn.disabled = true;
+        btn.innerHTML = "⏳ Loading...";
 
+        const url = BACKEND_URL + "?roll=" + encodeURIComponent(roll);
+
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+
+        if (data.error) {
+          showError(data.error);
+          document.getElementById("infoText").textContent = "कृपया roll number या डेटा चेक करें।";
+          return;
+        }
+
+        const u = data.user || {};
+        const r = data.ranks || {};
+        const stats = data.stats || {};
+
+        document.getElementById("nameText").textContent = u.name || "--";
+        document.getElementById("catText").textContent = u.category || "--";
+        document.getElementById("genderText").textContent = u.gender || "--";
+        document.getElementById("dobText").textContent = u.dob || "--";
+        document.getElementById("examDateText").textContent = u.exam_date || "--";
+        document.getElementById("marksText").textContent =
+          u.cet_marks != null ? u.cet_marks : "--";
+
+        document.getElementById("overallRankText").textContent =
+          r.overallRank != null && r.overallRank !== "--" ? r.overallRank : "--";
+        document.getElementById("catRankText").textContent =
+          r.categoryRank != null && r.categoryRank !== "--" ? r.categoryRank : "--";
+
+        document.getElementById("totalCandText").textContent =
+          stats.totalCandidates != null ? stats.totalCandidates : "--";
+
+        if (data.rankTime) {
+          try {
+            const dt = new Date(data.rankTime);
+            const formatted =
+              dt.toLocaleDateString("hi-IN") +
+              " " +
+              dt.toLocaleTimeString("hi-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            document.getElementById("rankTimeText").textContent = formatted;
+          } catch (e) {
+            document.getElementById("rankTimeText").textContent = data.rankTime;
+          }
+        } else {
+          document.getElementById("rankTimeText").textContent = "--";
+        }
+
+        document.getElementById("infoText").textContent =
+          "Rank सफलतापूर्वक load हो गया।";
+      } catch (err) {
+        console.log(err);
+        showError("Network error / Backend issue. बाद में दुबारा कोशिश करें।");
+      } finally {
+        const btn = document.getElementById("refreshBtn");
+        btn.disabled = false;
+        btn.innerHTML = "🔄 Refresh Rank";
+      }
+    }
+
+    // Refresh बटन क्लिक पर rank load करें
+    document.getElementById("refreshBtn").addEventListener("click", () => {
+      fetchLiveRank();
+    });
+
+    // अगर URL में पहले से roll है तो page load पर एक बार auto load
+    window.addEventListener("load", () => {
+      const rollFromUrl = getQueryParam("roll");
+      if (rollFromUrl) {
+        document.getElementById("rollInputBox").style.display = "none";
+        fetchLiveRank(rollFromUrl);
+      } else {
+        document.getElementById("rollInputBox").style.display = "block";
+        document.getElementById("infoText").textContent =
+          "Roll URL से नहीं मिला। कृपया roll भरकर Refresh Rank दबाएँ।";
+      }
+    });
+
+    // "Go" बटन से भी same काम
+    document.getElementById("rollGoBtn").addEventListener("click", () => {
+      const roll = document.getElementById("rollInput").value.trim();
+      if (!roll) {
+        showError("कृपया roll number भरें।");
+        return;
+      }
+      clearError();
+      // URL में भी अपडेट कर दें (ताकि share किया जा सके)
+      const params = new URLSearchParams(window.location.search);
+      params.set("roll", roll);
+      const newUrl =
+        window.location.pathname + "?" + params.toString() + window.location.hash;
+      window.history.replaceState({}, "", newUrl);
+      fetchLiveRank(roll);
+    });
+  </script>
 </body>
 </html>
