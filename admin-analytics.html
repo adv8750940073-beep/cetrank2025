@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Analytics</title>
+
+<style>
+body{
+  font-family:system-ui;
+  background:#020617;
+  color:#e5e7eb;
+  padding:14px;
+}
+.card{
+  max-width:1000px;
+  margin:auto;
+  background:#0f172a;
+  border:1px solid #334155;
+  border-radius:14px;
+  padding:14px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+.kpi{
+  background:#111827;
+  padding:12px;
+  border-radius:12px;
+  text-align:center;
+}
+h2{margin-top:0}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{padding:8px;border-bottom:1px solid #334155}
+th{background:#111827}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h2>📊 Admin Analytics Dashboard</h2>
+
+<div class="grid" id="kpis"></div>
+
+<h3>🏆 Top Scorers</h3>
+<table>
+<thead>
+<tr><th>Rank</th><th>Name</th><th>Score</th></tr>
+</thead>
+<tbody id="top"></tbody>
+</table>
+
+<h3>🚨 High Risk (Cheating)</h3>
+<table>
+<thead>
+<tr><th>Name</th><th>Violations</th></tr>
+</thead>
+<tbody id="cheat"></tbody>
+</table>
+
+</div>
+
+<script>
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbykOLwPfiZPECfydtBY-H2o1UgBE0E9bf3tNHeuyVuzPL2N8C5RsADOD8CTin1RASb9/exec";
+
+/* KPIs */
+fetch(`${BACKEND_URL}?action=analytics`)
+.then(r=>r.json())
+.then(d=>{
+  const k = document.getElementById("kpis");
+  k.innerHTML = `
+    <div class="kpi">📚 Questions<br><b>${d.totalQuestions}</b></div>
+    <div class="kpi">📝 Attempts<br><b>${d.totalAttempts}</b></div>
+    <div class="kpi">📊 Avg Score<br><b>${d.avgScore}</b></div>
+    <div class="kpi">⏱️ Avg Time<br><b>${d.avgTime}s</b></div>
+    <div class="kpi">🚨 Violations<br><b>${d.totalViolations}</b></div>
+  `;
+});
+
+/* Top Scorers */
+fetch(`${BACKEND_URL}?action=topScorers`)
+.then(r=>r.json())
+.then(list=>{
+  const t = document.getElementById("top");
+  list.forEach(r=>{
+    t.innerHTML += `
+      <tr><td>${r.rank}</td><td>${r.name}</td><td>${r.score}</td></tr>
+    `;
+  });
+});
+
+/* Cheat Stats */
+fetch(`${BACKEND_URL}?action=cheatStats`)
+.then(r=>r.json())
+.then(list=>{
+  const c = document.getElementById("cheat");
+  list.forEach(r=>{
+    c.innerHTML += `
+      <tr><td>${r.name}</td><td>${r.violations}</td></tr>
+    `;
+  });
+});
+</script>
+
+</body>
+</html>
