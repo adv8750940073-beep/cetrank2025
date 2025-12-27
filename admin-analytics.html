@@ -63,10 +63,16 @@ th{background:#111827}
 
 </div>
 
+  
 <script>
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbykOLwPfiZPECfydtBY-H2o1UgBE0E9bf3tNHeuyVuzPL2N8C5RsADOD8CTin1RASb9/exec";
 
-/* KPIs */
+  if(sessionStorage.getItem("admin") !== "yes"){
+  alert("Admin login required");
+  location.href = "admin.html";
+}
+
+  /* KPIs */
 fetch(`${BACKEND_URL}?action=analytics`)
 .then(r=>r.json())
 .then(d=>{
