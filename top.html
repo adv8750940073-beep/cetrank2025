@@ -128,12 +128,12 @@ function maskName(name){
   const parts = clean.split(' ').filter(Boolean);
 
   if(parts.length === 1){
-    return parts[0].slice(0,2) + '***';
+    return parts[0].slice(0,3) + '***';
   }
 
   return parts.map((p,i)=>{
     if(i === 0 || i === parts.length - 1){
-      return p.slice(0,2) + '***';
+      return p.slice(0,3) + '***';
     }
     return '***';
   }).join(' ');
@@ -143,8 +143,8 @@ function maskName(name){
   function maskName(name){
     if(!name) return '--';
     return name.split(' ').map(p=>{
-      if(p.length <= 2) return p[0] + '*';
-      return p.slice(0,2) + '***';
+      if(p.length <= 3) return p[0] + '*';
+      return p.slice(0,3) + '***';
     }).join(' ');
   }
 
