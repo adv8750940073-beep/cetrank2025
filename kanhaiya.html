@@ -171,43 +171,34 @@ function extractMCQ(rawText){
 
   const mcqs = [];
 
-  // 🔥 Split by question number (1, 2., 3- etc)
+  // 🔥 Question blocks split
   const blocks = rawText.split(/\n(?=\d+\s*[-.)])/);
+
+  console.log("Blocks found:", blocks.length);
 
   blocks.forEach(block => {
 
-    // option detection (any format)
-    const optRegex =
-      /(?:^|\s)(A|a|\(a\)|1\.)\s*(.+?)(?=\s(B|b|\(b\)|2\.))/i;
-
-    const options = block.match(
-      /(A|\(A\)|a)[\).:\s]+(.+?)(?=(B|\(B\)|b)[\).:\s])/i
+    const match = block.match(
+      /^(\d+[-.)]?\s*)([\s\S]{10,300}?)\s+
+      (A|\(A\)|a)[\).:\s]+([\s\S]+?)
+      (B|\(B\)|b)[\).:\s]+([\s\S]+?)
+      (C|\(C\)|c)[\).:\s]+([\s\S]+?)
+      (D|\(D\)|d)[\).:\s]+([\s\S]+)$/ix
     );
 
-    const allOptions = block.match(
-      /(A|\(A\)|a)[\).:\s]+(.+?)(B|\(B\)|b)[\).:\s]+(.+?)(C|\(C\)|c)[\).:\s]+(.+?)(D|\(D\)|d)[\).:\s]+(.+)/i
-    );
-
-    if(!allOptions) return;
-
-    // Question = text before first option
-    const qText = block
-      .split(/(A|\(A\)|a)[\).:\s]/i)[0]
-      .replace(/^\d+[-.)]\s*/, "")
-      .trim();
-
-    if(qText.length < 5) return;
+    if(!match) return;
 
     mcqs.push({
-      question: qText,
-      A: allOptions[2].trim(),
-      B: allOptions[4].trim(),
-      C: allOptions[6].trim(),
-      D: allOptions[8].trim(),
-      correct: "" // optional
+      question: match[2].trim(),
+      A: match[4].trim(),
+      B: match[6].trim(),
+      C: match[8].trim(),
+      D: match[10].trim(),
+      correct: ""
     });
   });
 
+  console.log("MCQs extracted:", mcqs.length);
   return mcqs;
 }
 
