@@ -140,9 +140,10 @@ if(!mcqs.length){
     return;
   }
 
-  pdfStatus.innerText = "❌ No MCQ detected (try AI mode)";
-  console.log("RAW PDF TEXT ↓↓↓");
+  pdfStatus.innerText = "❌ No MCQ detected — showing raw text in console";
+  console.log("===== RAW PDF TEXT =====");
   console.log(rawText);
+  alert("MCQ नहीं मिले — Console में text check करो");
   return;
 }
 
@@ -154,66 +155,60 @@ if(!mcqs.length){
   // 👉 future: backend save yahin se hoga
 }
 
-function extractMCQ(rawText){
-
-  // 🔹 Normalize text (Hindi + English + Legacy)
-  const text = normalizeText(rawText);
-
-  const lines = text
-    .split(/\n+/)
-    .map(l => l.trim())
-    .filter(l => l.length > 5);
-
-  const mcqs = [];
-  let q = null;
-
-  lines.forEach(line => {
-
-    // 🟢 Question start
-    if (/^(\d+[\).\-]|Q\d+)/i.test(line)) {
-      if(q && isValidMCQ(q)) mcqs.push(q);
-
-      q = {
-        question: line.replace(/^(\d+[\).\-]|Q\d+)\s*/i, ""),
-        A:"", B:"", C:"", D:"",
-        correct:""
-      };
-      return;
-    }
-
-    if(!q) return;
-
-    // 🔵 Options
-    if (/^(A[\).:-])/i.test(line)) q.A = cleanOpt(line);
-    else if (/^(B[\).:-])/i.test(line)) q.B = cleanOpt(line);
-    else if (/^(C[\).:-])/i.test(line)) q.C = cleanOpt(line);
-    else if (/^(D[\).:-])/i.test(line)) q.D = cleanOpt(line);
-
-    // 🔴 Answer detect (Hindi + English)
-    else if (/उत्तर|Ans|Answer/i.test(line)) {
-      const m = line.match(/[A-D]/i);
-      if(m) q.correct = m[0].toUpperCase();
-    }
-
-  });
-
-  if(q && isValidMCQ(q)) mcqs.push(q);
-
-  return mcqs;
-}
-
-  function cleanOpt(line){
-  return line
-    .replace(/^[A-D][\).:\-]\s*/i,"")
+  function normalizeText(text){
+  return text
+    .replace(/\r/g, "\n")
+    .replace(/[‐-–—]/g, "-")
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, " ")
+    .replace(/\n\s+/g, "\n")
     .trim();
 }
 
-function isValidMCQ(q){
-  return (
-    q.question &&
-    q.A && q.B && q.C && q.D &&
-    ["A","B","C","D"].includes(q.correct)
-  );
+function extractMCQ(rawText){
+  rawText = normalizeText(rawText);
+
+  const mcqs = [];
+
+  // 🔥 Split by question number (1, 2., 3- etc)
+  const blocks = rawText.split(/\n(?=\d+\s*[-.)])/);
+
+  blocks.forEach(block => {
+
+    // option detection (any format)
+    const optRegex =
+      /(?:^|\s)(A|a|\(a\)|1\.)\s*(.+?)(?=\s(B|b|\(b\)|2\.))/i;
+
+    const options = block.match(
+      /(A|\(A\)|a)[\).:\s]+(.+?)(?=(B|\(B\)|b)[\).:\s])/i
+    );
+
+    const allOptions = block.match(
+      /(A|\(A\)|a)[\).:\s]+(.+?)(B|\(B\)|b)[\).:\s]+(.+?)(C|\(C\)|c)[\).:\s]+(.+?)(D|\(D\)|d)[\).:\s]+(.+)/i
+    );
+
+    if(!allOptions) return;
+
+    // Question = text before first option
+    const qText = block
+      .split(/(A|\(A\)|a)[\).:\s]/i)[0]
+      .replace(/^\d+[-.)]\s*/, "")
+      .trim();
+
+    if(qText.length < 5) return;
+
+    mcqs.push({
+      question: qText,
+      A: allOptions[2].trim(),
+      B: allOptions[4].trim(),
+      C: allOptions[6].trim(),
+      D: allOptions[8].trim(),
+      correct: "" // optional
+    });
+  });
+
+  return mcqs;
 }
 
 function improveWithAI(rawText){
