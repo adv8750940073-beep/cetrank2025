@@ -62,7 +62,7 @@ function login(){
   .then(r=>r.json())
   .then(res=>{
     if(res.success){
-      sessionStorage.setItem("admin","yes");
+      sessionStorage.setItem("adminToken", res.token);
       loginBox.classList.add("hidden");
       panel.classList.remove("hidden");
     }else{
@@ -72,12 +72,14 @@ function login(){
 }
 
 function logout(){
-  sessionStorage.removeItem("admin");
+  const t = sessionStorage.getItem("adminToken");
+  fetch(`${BACKEND}?action=logout&token=${t}`);
+  sessionStorage.clear();
   location.reload();
 }
 
 // 🔒 Auto-block direct open
-if(sessionStorage.getItem("admin")==="yes"){
+if(sessionStorage.getItem("adminToken")){
   loginBox.classList.add("hidden");
   panel.classList.remove("hidden");
 }
