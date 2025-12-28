@@ -151,22 +151,27 @@ if(!mcqs.length){
   // 👉 future: backend save yahin se hoga
 }
 
-function extractMCQ(text){
-  const lines = text
-    .split("\n")
-    .map(l=>l.trim())
-    .filter(l=>l.length > 3);
+function extractMCQ(rawText){
 
-  const out = [];
+  // 🔹 Normalize text (Hindi + English + Legacy)
+  const text = normalizeText(rawText);
+
+  const lines = text
+    .split(/\n+/)
+    .map(l => l.trim())
+    .filter(l => l.length > 5);
+
+  const mcqs = [];
   let q = null;
 
-  lines.forEach(line=>{
+  lines.forEach(line => {
 
-    // 🔹 Question start
-    if(/^\d+[\.\)]/.test(line)){
-      if(q) out.push(q);
+    // 🟢 Question start
+    if (/^(\d+[\).\-]|Q\d+)/i.test(line)) {
+      if(q && isValidMCQ(q)) mcqs.push(q);
+
       q = {
-        question: line.replace(/^\d+[\.\)]\s*/, ""),
+        question: line.replace(/^(\d+[\).\-]|Q\d+)\s*/i, ""),
         A:"", B:"", C:"", D:"",
         correct:""
       };
@@ -175,24 +180,36 @@ function extractMCQ(text){
 
     if(!q) return;
 
-    // 🔹 Options
-    if(/^A[\).\s]/i.test(line)) q.A = line.replace(/^A[\).\s-]*/i,"");
-    else if(/^B[\).\s]/i.test(line)) q.B = line.replace(/^B[\).\s-]*/i,"");
-    else if(/^C[\).\s]/i.test(line)) q.C = line.replace(/^C[\).\s-]*/i,"");
-    else if(/^D[\).\s]/i.test(line)) q.D = line.replace(/^D[\).\s-]*/i,"");
+    // 🔵 Options
+    if (/^(A[\).:-])/i.test(line)) q.A = cleanOpt(line);
+    else if (/^(B[\).:-])/i.test(line)) q.B = cleanOpt(line);
+    else if (/^(C[\).:-])/i.test(line)) q.C = cleanOpt(line);
+    else if (/^(D[\).:-])/i.test(line)) q.D = cleanOpt(line);
 
-    // 🔹 Answer detect
-    else if(/Ans|उत्तर/i.test(line)){
+    // 🔴 Answer detect (Hindi + English)
+    else if (/उत्तर|Ans|Answer/i.test(line)) {
       const m = line.match(/[A-D]/i);
       if(m) q.correct = m[0].toUpperCase();
     }
+
   });
 
-  if(q) out.push(q);
+  if(q && isValidMCQ(q)) mcqs.push(q);
 
-  // ❌ incomplete MCQ remove
-  return out.filter(q =>
-    q.question && q.A && q.B && q.C && q.D
+  return mcqs;
+}
+
+  function cleanOpt(line){
+  return line
+    .replace(/^[A-D][\).:\-]\s*/i,"")
+    .trim();
+}
+
+function isValidMCQ(q){
+  return (
+    q.question &&
+    q.A && q.B && q.C && q.D &&
+    ["A","B","C","D"].includes(q.correct)
   );
 }
 
@@ -219,7 +236,35 @@ function improveWithAI(rawText){
     pdfStatus.innerText = "❌ AI request failed";
   });
 }
-  
+
+  function normalizeText(t){
+
+  if(!t) return "";
+
+  // Common garbage
+  t = t.replace(/\s+/g," ");
+
+  // 🔸 Hindi punctuation normalize
+  t = t
+    .replace(/।/g,".")
+    .replace(/–|—/g,"-");
+
+  // 🔸 KrutiDev / legacy hints (basic)
+  const legacyMap = {
+    "vf/kd": "अधिक",
+    "vkSj": "और",
+    "dk": "का",
+    "ls": "से",
+    "D;k": "क्या"
+  };
+
+  Object.keys(legacyMap).forEach(k=>{
+    t = t.replace(new RegExp(k,"g"), legacyMap[k]);
+  });
+
+  return t;
+}
+
 </script>
 
 </body>
