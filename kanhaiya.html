@@ -44,6 +44,11 @@ a{color:#60a5fa;text-decoration:none;font-weight:600}
 <h3>📄 PDF Upload (MCQ Extract)</h3>
 <input type="file" id="pdfFile" accept="application/pdf">
 <button onclick="processPDF()">Extract</button>
+ <label style="display:flex;gap:8px;align-items:center;margin-top:8px">
+  <input type="checkbox" id="aiToggle">
+  Improve accuracy with AI (OCR + Hindi/English fix)
+</label>
+ 
 <div id="pdfStatus" class="status"></div>
 
 </div>
@@ -121,13 +126,22 @@ async function processPDF(){
   console.log("RAW PDF TEXT ↓↓↓");
   console.log(rawText);
   
-  const mcqs = extractMCQ(rawText);
+const mcqs = extractMCQ(rawText);
 
-  if(!mcqs.length){
-    pdfStatus.innerText = "❌ No MCQ detected";
-    console.log(rawText);
+if(!mcqs.length){
+
+  // 🔁 AI fallback (only if toggle ON)
+  if(document.getElementById("aiToggle")?.checked){
+    pdfStatus.innerText = "⚙️ Improving accuracy with AI...";
+    improveWithAI(rawText);
     return;
   }
+
+  pdfStatus.innerText = "❌ No MCQ detected (try AI mode)";
+  console.log("RAW PDF TEXT ↓↓↓");
+  console.log(rawText);
+  return;
+}
 
   pdfStatus.innerText =
     `✅ ${mcqs.length} MCQ extracted (see console)`;
@@ -180,6 +194,30 @@ function extractMCQ(text){
   return out.filter(q =>
     q.question && q.A && q.B && q.C && q.D
   );
+}
+
+function improveWithAI(rawText){
+  fetch(BACKEND, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      action:"aiNormalize",
+      text: rawText
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success && res.questions?.length){
+      extractedMCQs = res.questions;
+      showPreview(extractedMCQs);
+      pdfStatus.innerText = "✅ AI improved MCQs ready";
+    }else{
+      pdfStatus.innerText = "❌ AI could not detect MCQs";
+    }
+  })
+  .catch(()=>{
+    pdfStatus.innerText = "❌ AI request failed";
+  });
 }
   
 </script>
