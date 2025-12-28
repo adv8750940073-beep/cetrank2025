@@ -78,16 +78,15 @@ button{
 <h2>🔐 Admin Panel – CET Test</h2>
 
 <!-- ===== LOGIN ===== -->
-<div id="loginBox">
-  <input id="email" placeholder="Admin Email">
-<input id="otp" placeholder="Enter OTP" class="hidden">
+<form method="GET" action="https://script.google.com/macros/s/AKfycbykOLwPfiZPECfydtBY-H2o1UgBE0E9bf3tNHeuyVuzPL2N8C5RsADOD8CTin1RASb9/exec" target="_self">
 
-<button onclick="sendEmailOTP()">Send OTP</button>
-<button onclick="verifyEmailOTP()" class="hidden" id="vBtn">Verify OTP</button>
+  <input type="hidden" name="action" value="sendOTP">
 
-<div id="loginStatus"></div>
+  <input name="email" placeholder="Admin Email" required>
 
-</div>
+  <button type="submit">Send OTP</button>
+
+</form>
 
   <!-- ===admin analytic se link=== -->
   <div style="margin-top:10px">
