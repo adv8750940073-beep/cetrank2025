@@ -80,7 +80,7 @@ button{
 <!-- ===== LOGIN ===== -->
 <div id="loginBox">
   <input type="password" id="adminPass" placeholder="Admin Password">
-  <button onclick="login()">Login</button>
+  <button type="button" onclick="login()">Login</button>
 </div>
 
   <!-- ===admin analytic se link=== -->
@@ -147,13 +147,28 @@ const ADMIN_PASSWORD = "kanhaiya@123"; // change later
 
 /* ===== LOGIN ===== */
 function login(){
-  const pass = document.getElementById("adminPass").value;
-  if(pass === ADMIN_PASSWORD){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("panel").classList.remove("hidden");
-    sessionStorage.setItem("admin","yes");
-  }else{
-    alert("Wrong password");
+  try{
+    const passEl = document.getElementById("adminPass");
+    const loginBox = document.getElementById("loginBox");
+    const panel = document.getElementById("panel");
+
+    if(!passEl || !loginBox || !panel){
+      alert("Login elements missing");
+      return;
+    }
+
+    const pass = passEl.value.trim();
+
+    if(pass === ADMIN_PASSWORD){
+      loginBox.style.display = "none";
+      panel.classList.remove("hidden");
+      sessionStorage.setItem("admin","yes");
+    }else{
+      alert("❌ Wrong password");
+    }
+
+  }catch(e){
+    alert("Login error: " + e.message);
   }
 }
 
@@ -353,6 +368,11 @@ function extractMCQ(text){
   return out.filter(q =>
     q.question && q.A && q.B && q.C && q.D && q.correct
   );
+}
+
+  if(sessionStorage.getItem("admin")==="yes"){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("panel").classList.remove("hidden");
 }
 
 </script>
