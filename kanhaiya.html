@@ -80,10 +80,14 @@ button{
 <!-- ===== LOGIN ===== -->
 <div id="loginBox">
   <input id="adminUser" placeholder="Mobile or Email">
-  <input id="adminOTP" placeholder="OTP" class="hidden">
-  <button onclick="sendOTP()">Send OTP</button>
-  <button onclick="verifyOTP()" class="hidden">Verify OTP</button>
+  <input id="adminOTP" placeholder="Enter OTP" class="hidden">
 
+  <button id="sendOtpBtn" type="button" onclick="sendOTP()">Send OTP</button>
+  <button id="verifyOtpBtn" type="button" onclick="verifyOTP()" class="hidden">
+    Verify OTP
+  </button>
+
+  <div class="status" id="loginStatus"></div>
 </div>
 
   <!-- ===admin analytic se link=== -->
@@ -146,34 +150,9 @@ button{
 
   /* ===== CONFIG ===== */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbykOLwPfiZPECfydtBY-H2o1UgBE0E9bf3tNHeuyVuzPL2N8C5RsADOD8CTin1RASb9/exec";
-const ADMIN_PASSWORD = "kanhaiya@123"; // change later
-
-/* ===== LOGIN ===== */
-function login(){
-  try{
-    const passEl = document.getElementById("adminPass");
-    const loginBox = document.getElementById("loginBox");
-    const panel = document.getElementById("panel");
-
-    if(!passEl || !loginBox || !panel){
-      alert("Login elements missing");
-      return;
-    }
-
-    const pass = passEl.value.trim();
-
-    if(pass === ADMIN_PASSWORD){
-      loginBox.style.display = "none";
-      panel.classList.remove("hidden");
-      sessionStorage.setItem("admin","yes");
-    }else{
-      alert("❌ Wrong password");
-    }
-
-  }catch(e){
-    alert("Login error: " + e.message);
-  }
-}
+  
+  const el = id => document.getElementById(id);
+  let ADMIN_TOKEN = sessionStorage.getItem("adminToken") || "";
 
   /***PREVIEW RENDER FUNCTION***/
   function showPreview(list){
@@ -382,38 +361,75 @@ function extractMCQ(text){
   let ADMIN_TOKEN = "";
 
 function sendOTP(){
+  const user = el("adminUser").value.trim();
+  if(!user){
+    el("loginStatus").textContent = "❌ Enter mobile or email";
+    return;
+  }
+
+  el("loginStatus").textContent = "⏳ Sending OTP...";
+
   fetch(BACKEND_URL,{
     method:"POST",
-    body:JSON.stringify({
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
       action:"sendOTP",
-      user: adminUser.value.trim()
+      user:user
     })
   })
   .then(r=>r.json())
   .then(res=>{
+    console.log("sendOTP:", res);
     if(res.success){
-      adminOTP.classList.remove("hidden");
-      alert("OTP sent (check server log)");
-    }else alert(res.error);
+      el("loginStatus").textContent = "✅ OTP sent (check sheet/logs)";
+      el("adminOTP").classList.remove("hidden");
+      el("verifyOtpBtn").classList.remove("hidden");
+    }else{
+      el("loginStatus").textContent = "❌ "+res.error;
+    }
+  })
+  .catch(err=>{
+    console.error(err);
+    el("loginStatus").textContent = "❌ Network error";
   });
 }
 
 function verifyOTP(){
+  const user = el("adminUser").value.trim();
+  const otp  = el("adminOTP").value.trim();
+
+  if(!otp){
+    el("loginStatus").textContent = "❌ Enter OTP";
+    return;
+  }
+
+  el("loginStatus").textContent = "⏳ Verifying OTP...";
+
   fetch(BACKEND_URL,{
     method:"POST",
-    body:JSON.stringify({
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
       action:"verifyOTP",
-      user: adminUser.value.trim(),
-      otp: adminOTP.value.trim()
+      user:user,
+      otp:otp
     })
   })
   .then(r=>r.json())
   .then(res=>{
+    console.log("verifyOTP:", res);
     if(res.success){
       ADMIN_TOKEN = res.token;
       sessionStorage.setItem("adminToken", ADMIN_TOKEN);
-      panel.classList.remove("hidden");
-    }else alert(res.error);
+
+      el("loginBox").style.display="none";
+      el("panel").classList.remove("hidden");
+    }else{
+      el("loginStatus").textContent = "❌ "+res.error;
+    }
+  })
+  .catch(err=>{
+    console.error(err);
+    el("loginStatus").textContent = "❌ Network error";
   });
 }
 
