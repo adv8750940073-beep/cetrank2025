@@ -86,13 +86,99 @@ if(sessionStorage.getItem("adminToken")){
 
 /* PDF logic untouched */
 async function processPDF(){
-  const f=pdfFile.files[0];
-  if(!f) return alert("Select PDF");
-  pdfStatus.innerText="Reading...";
-  const buf=await f.arrayBuffer();
-  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-  pdfStatus.innerText="PDF loaded. MCQ logic safe.";
+  const f = pdfFile.files[0];
+  if(!f){
+    alert("Select PDF");
+    return;
+  }
+
+  pdfStatus.innerText = "📖 Reading PDF...";
+
+  const buf = await f.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+
+  let rawText = "";
+
+  for(let p=1; p<=pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+
+    tc.items.forEach(it=>{
+      if(!it.str) return;
+
+      const t = it.str.trim();
+
+      // ❌ Watermark / noise ignore
+      if(
+        t.length < 3 ||
+        /hariyana|gk|www|copyright|pdf|page/i.test(t)
+      ) return;
+
+      rawText += t + "\n";
+    });
+  }
+
+  const mcqs = extractMCQ(rawText);
+
+  if(!mcqs.length){
+    pdfStatus.innerText = "❌ No MCQ detected";
+    console.log(rawText);
+    return;
+  }
+
+  pdfStatus.innerText =
+    `✅ ${mcqs.length} MCQ extracted (see console)`;
+
+  console.log("EXTRACTED MCQs:", mcqs);
+
+  // 👉 future: backend save yahin se hoga
 }
+
+function extractMCQ(text){
+  const lines = text
+    .split("\n")
+    .map(l=>l.trim())
+    .filter(l=>l.length > 3);
+
+  const out = [];
+  let q = null;
+
+  lines.forEach(line=>{
+
+    // 🔹 Question start
+    if(/^\d+[\.\)]/.test(line)){
+      if(q) out.push(q);
+      q = {
+        question: line.replace(/^\d+[\.\)]\s*/, ""),
+        A:"", B:"", C:"", D:"",
+        correct:""
+      };
+      return;
+    }
+
+    if(!q) return;
+
+    // 🔹 Options
+    if(/^A[\).\s]/i.test(line)) q.A = line.replace(/^A[\).\s-]*/i,"");
+    else if(/^B[\).\s]/i.test(line)) q.B = line.replace(/^B[\).\s-]*/i,"");
+    else if(/^C[\).\s]/i.test(line)) q.C = line.replace(/^C[\).\s-]*/i,"");
+    else if(/^D[\).\s]/i.test(line)) q.D = line.replace(/^D[\).\s-]*/i,"");
+
+    // 🔹 Answer detect
+    else if(/Ans|उत्तर/i.test(line)){
+      const m = line.match(/[A-D]/i);
+      if(m) q.correct = m[0].toUpperCase();
+    }
+  });
+
+  if(q) out.push(q);
+
+  // ❌ incomplete MCQ remove
+  return out.filter(q =>
+    q.question && q.A && q.B && q.C && q.D
+  );
+}
+  
 </script>
 
 </body>
