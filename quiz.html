@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF → MCQ Extractor (Hindi)</title>
+
+<!-- pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<style>
+body{
+  font-family: system-ui;
+  background:#020617;
+  color:#e5e7eb;
+  padding:16px;
+}
+.card{
+  max-width:900px;
+  margin:auto;
+  background:#0f172a;
+  border:1px solid #334155;
+  border-radius:16px;
+  padding:18px;
+}
+h2{margin-top:0}
+input,button{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #334155;
+  background:#020617;
+  color:#e5e7eb;
+}
+button{
+  background:#2563eb;
+  border:none;
+  cursor:pointer;
+}
+.status{
+  margin-top:10px;
+  color:#9ca3af;
+  white-space:pre-line;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>📄 PDF से Hindi MCQ Extract & Save</h2>
+
+<input type="file" id="pdfFile" accept="application/pdf">
+<br><br>
+<button onclick="processPDF()">📤 Extract & Save MCQs</button>
+
+<div id="status" class="status"></div>
+
+</div>
+
+<script>
+const BACKEND =
+"https://script.google.com/macros/s/AKfycbykOLwPfiZPECfydtBY-H2o1UgBE0E9bf3tNHeuyVuzPL2N8C5RsADOD8CTin1RASb9/exec";
+
+/* ================= PDF PROCESS ================= */
+
+async function processPDF(){
+  const file = pdfFile.files[0];
+  if(!file){
+    alert("PDF select karo");
+    return;
+  }
+
+  status.innerText = "📖 PDF पढ़ा जा रहा है...";
+
+  const buffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data:buffer}).promise;
+
+  let rawText = "";
+
+  for(let p=1; p<=pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+
+    tc.items.forEach(it=>{
+      if(!it.str) return;
+
+      let t = it.str.trim();
+
+      // ❌ watermark / noise remove
+      if(
+        t.length < 3 ||
+        /hariyana|gk|www|copyright|pdf|page/i.test(t)
+      ) return;
+
+      rawText += t + "\n";
+    });
+  }
+
+  console.log("RAW TEXT:", rawText);
+
+  const mcqs = extractMCQs(rawText);
+
+  if(!mcqs.length){
+    status.innerText = "❌ कोई MCQ नहीं मिला\nConsole में raw text check करो";
+    return;
+  }
+
+  status.innerText = `📤 ${mcqs.length} MCQ मिले — Sheet में save हो रहे हैं...`;
+
+  saveToBackend(mcqs);
+}
+
+/* ================= TEXT NORMALIZE ================= */
+
+function normalizeText(t){
+  return t
+    .replace(/\r/g,"\n")
+    .replace(/[–—]/g,"-")
+    .replace(/।/g,".")
+    .replace(/\s+/g," ")
+    .replace(/\n\s+/g,"\n")
+    .trim();
+}
+
+/* ================= MCQ EXTRACT ================= */
+
+function extractMCQs(text){
+  text = normalizeText(text);
+
+  const blocks = text.split(/\n(?=\d+\s*[-.)])/);
+  const out = [];
+
+  console.log("Blocks:", blocks.length);
+
+  blocks.forEach(b=>{
+    const m = b.match(
+      /^(\d+[-.)]?\s*)([\s\S]{10,300}?)\s+
+      (A|\(A\)|a)[\).:\s]+([\s\S]+?)
+      (B|\(B\)|b)[\).:\s]+([\s\S]+?)
+      (C|\(C\)|c)[\).:\s]+([\s\S]+?)
+      (D|\(D\)|d)[\).:\s]+([\s\S]+)$/ix
+    );
+
+    if(!m) return;
+
+    out.push({
+      question: m[2].trim(),
+      A: m[4].trim(),
+      B: m[6].trim(),
+      C: m[8].trim(),
+      D: m[10].trim(),
+      correct: ""   // answer key optional
+    });
+  });
+
+  console.log("MCQs:", out);
+  return out;
+}
+
+/* ================= BACKEND SAVE ================= */
+
+function saveToBackend(mcqs){
+  fetch(BACKEND,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      mode:"pdf",
+      questions: mcqs
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success){
+      status.innerText =
+        `✅ SUCCESS\n${res.added} MCQ QuestionBank sheet में save हो गए`;
+    }else{
+      status.innerText = "❌ Error: " + res.error;
+    }
+  })
+  .catch(err=>{
+    console.error(err);
+    status.innerText = "❌ Backend error (console check)";
+  });
+}
+</script>
+
+</body>
+</html>
