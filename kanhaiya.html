@@ -79,15 +79,14 @@ button{
 
 <!-- ===== LOGIN ===== -->
 <div id="loginBox">
-  <input id="adminUser" placeholder="Mobile or Email">
-  <input id="adminOTP" placeholder="Enter OTP" class="hidden">
+  <input id="email" placeholder="Admin Email">
+<input id="otp" placeholder="Enter OTP" class="hidden">
 
-  <button id="sendOtpBtn" type="button" onclick="sendOTP()">Send OTP</button>
-  <button id="verifyOtpBtn" type="button" onclick="verifyOTP()" class="hidden">
-    Verify OTP
-  </button>
+<button onclick="sendEmailOTP()">Send OTP</button>
+<button onclick="verifyEmailOTP()" class="hidden" id="vBtn">Verify OTP</button>
 
-  <div class="status" id="loginStatus"></div>
+<div id="loginStatus"></div>
+
 </div>
 
   <!-- ===admin analytic se link=== -->
@@ -438,6 +437,52 @@ function verifyOTP(){
   if(ADMIN_TOKEN){
   el("loginBox").style.display="none";
   el("panel").classList.remove("hidden");
+}
+
+  function sendEmailOTP(){
+  const email = email.value.trim();
+  loginStatus.textContent = "Sending OTP...";
+
+  fetch(BACKEND_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      action:"sendEmailOTP",
+      email: email
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success){
+      loginStatus.textContent = "OTP sent to email";
+      otp.classList.remove("hidden");
+      vBtn.classList.remove("hidden");
+    }else{
+      loginStatus.textContent = res.error;
+    }
+  });
+}
+
+function verifyEmailOTP(){
+  fetch(BACKEND_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      action:"verifyEmailOTP",
+      email: email.value,
+      otp: otp.value
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success){
+      sessionStorage.setItem("adminToken", res.token);
+      loginBox.style.display="none";
+      panel.classList.remove("hidden");
+    }else{
+      loginStatus.textContent = res.error;
+    }
+  });
 }
 
 </script>
