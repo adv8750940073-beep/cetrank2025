@@ -47,6 +47,25 @@ button{
   padding-top:10px;
   border-top:1px dashed #334155;
 }
+  .mcq{
+  border:1px solid #334155;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+  background:#020617;
+}
+.mcq textarea{
+  min-height:60px;
+}
+.mcq .opt{
+  display:grid;
+  grid-template-columns:40px 1fr;
+  gap:6px;
+}
+.mcq .remove{
+  background:#dc2626;
+  margin-top:6px;
+}
 .hidden{display:none}
 .status{margin-top:8px;color:#9ca3af}
 </style>
@@ -105,13 +124,24 @@ button{
 
     <div class="status" id="pdfStatus"></div>
   </div>
+<!-- ===== PREVIEW PANEL ===== -->
+<div class="section hidden" id="previewBox">
+  <h3>👀 MCQ Preview (Approve before Save)</h3>
+
+  <div id="previewList"></div>
+
+  <button onclick="approveAll()">✅ Approve & Save All</button>
+  <div class="status" id="previewStatus"></div>
+</div>
 
 </div>
 
 </div>
 
 <script>
-/* ===== CONFIG ===== */
+  let extractedMCQs = [];
+
+  /* ===== CONFIG ===== */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbykOLwPfiZPECfydtBY-H2o1UgBE0E9bf3tNHeuyVuzPL2N8C5RsADOD8CTin1RASb9/exec";
 const ADMIN_PASSWORD = "kanhaiya@123"; // change later
 
@@ -125,6 +155,77 @@ function login(){
   }else{
     alert("Wrong password");
   }
+}
+
+  /***PREVIEW RENDER FUNCTION***/
+  function showPreview(list){
+  const box = document.getElementById("previewBox");
+  const wrap = document.getElementById("previewList");
+
+  wrap.innerHTML = "";
+  box.classList.remove("hidden");
+
+  list.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "mcq";
+
+    div.innerHTML = `
+      <b>Q${i+1}</b>
+      <textarea onchange="extractedMCQs[${i}].question=this.value">${q.question}</textarea>
+
+      <div class="opt">A <input value="${q.A}" onchange="extractedMCQs[${i}].A=this.value"></div>
+      <div class="opt">B <input value="${q.B}" onchange="extractedMCQs[${i}].B=this.value"></div>
+      <div class="opt">C <input value="${q.C}" onchange="extractedMCQs[${i}].C=this.value"></div>
+      <div class="opt">D <input value="${q.D}" onchange="extractedMCQs[${i}].D=this.value"></div>
+
+      <select onchange="extractedMCQs[${i}].correct=this.value">
+        <option ${q.correct==="A"?"selected":""}>A</option>
+        <option ${q.correct==="B"?"selected":""}>B</option>
+        <option ${q.correct==="C"?"selected":""}>C</option>
+        <option ${q.correct==="D"?"selected":""}>D</option>
+      </select>
+
+      <button class="remove" onclick="removeMCQ(${i})">❌ Remove</button>
+    `;
+
+    wrap.appendChild(div);
+  });
+}
+/**REMOVE MCQ FUNCTION***/
+function removeMCQ(i){
+  extractedMCQs.splice(i,1);
+  showPreview(extractedMCQs);
+}
+
+/***APPROVE & SAVE***/
+  function approveAll(){
+  if(!extractedMCQs.length){
+    previewStatus.textContent = "❌ Nothing to save";
+    return;
+  }
+
+  fetch(BACKEND_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      mode:"pdf",
+      questions: extractedMCQs.map(q=>({
+        question:q.question,
+        A:q.A, B:q.B, C:q.C, D:q.D,
+        correct:q.correct,
+        source:"PDF"
+      }))
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    previewStatus.textContent = "✅ Saved "+res.added+" questions";
+    extractedMCQs = [];
+    document.getElementById("previewBox").classList.add("hidden");
+  })
+  .catch(()=>{
+    previewStatus.textContent = "❌ Save failed";
+  });
 }
 
 /* ===== MANUAL SAVE ===== */
@@ -162,21 +263,42 @@ async function processPDF(){
   for(let i=1;i<=pdf.numPages;i++){
     const p = await pdf.getPage(i);
     const c = await p.getTextContent();
-    text += c.items.map(it=>it.str).join(" ")+"\n";
+    c.items.forEach(it=>{
+  if (!it.str) return;
+  if (it.str.length < 4) return;
+  if (/hariyana|gk|www|pdf/i.test(it.str)) return;
+  text += it.str + "\n";
+});
   }
 
   const questions = extractMCQ(text);
 
-  if(!questions.length){
-    pdfStatus.textContent="❌ No MCQ found";
-    return;
-  }
+if(!questions.length){
+  pdfStatus.textContent="❌ No MCQ found";
+  return;
+}
+
+extractedMCQs = questions;
+showPreview(questions);
+pdfStatus.textContent = "📋 Review extracted questions";
+
+ }
+
+  const mappedQuestions = questions.map(q => ({
+  question: q.question,
+  A: q.A,
+  B: q.B,
+  C: q.C,
+  D: q.D,
+  correct: q.correct,
+  source: file.name
+}));
 
   fetch(BACKEND_URL,{
     method:"POST",
     body:JSON.stringify({
       mode:"pdf",
-      questions:questions
+      questions:mappedQuestions
     })
   })
   .then(r=>r.json())
@@ -188,18 +310,51 @@ async function processPDF(){
 
 /* ===== MCQ EXTRACTOR ===== */
 function extractMCQ(text){
-  const out=[];
-  const re=/Q\d+[\.\)]\s*(.*?)\s*A[\.\)]\s*(.*?)\s*B[\.\)]\s*(.*?)\s*C[\.\)]\s*(.*?)\s*D[\.\)]\s*(.*?)(?=Q\d+|$)/gis;
-  let m;
-  while((m=re.exec(text))!==null){
-    out.push({
-      question:m[1],
-      A:m[2], B:m[3], C:m[4], D:m[5],
-      correct:"" // optional
-    });
-  }
-  return out;
+  const lines = text
+    .split("\n")
+    .map(l => l.trim())
+    .filter(l => l && l.length > 3);
+
+  const out = [];
+  let q = null;
+
+  lines.forEach(line => {
+
+    // 🔹 NEW QUESTION
+    if (/^\d+[-.)]/.test(line)) {
+      if (q) out.push(q);
+      q = {
+        question: line.replace(/^\d+[-.)]\s*/, ""),
+        A: "", B: "", C: "", D: "",
+        correct: ""
+      };
+      return;
+    }
+
+    if (!q) return;
+
+    // 🔹 OPTIONS
+    if (/^\(?A\)?/.test(line)) q.A = line.replace(/^\(?A\)?[\).\s-]*/, "");
+    else if (/^\(?B\)?/.test(line)) q.B = line.replace(/^\(?B\)?[\).\s-]*/, "");
+    else if (/^\(?C\)?/.test(line)) q.C = line.replace(/^\(?C\)?[\).\s-]*/, "");
+    else if (/^\(?D\)?/.test(line)) q.D = line.replace(/^\(?D\)?[\).\s-]*/, "");
+
+    // 🔹 ANSWER
+    else if (/उत्तर|Ans/i.test(line)) {
+      const m = line.match(/[A-D]/i);
+      if (m) q.correct = m[0].toUpperCase();
+    }
+
+  });
+
+  if (q) out.push(q);
+
+  // ❌ अधूरे MCQ हटाओ
+  return out.filter(q =>
+    q.question && q.A && q.B && q.C && q.D && q.correct
+  );
 }
+
 </script>
 
 </body>
