@@ -122,6 +122,19 @@ button{
     <div class="status" id="manualStatus"></div>
   </div>
 
+  <h3>📢 Broadcast Message</h3>
+
+<textarea id="bcMsg" placeholder="Write update..."></textarea>
+
+<select id="bcChannel">
+  <option value="telegram">Telegram (Free)</option>
+  <option value="email">Email (Free)</option>
+  <option value="whatsapp">WhatsApp (Paid)</option>
+</select>
+
+<button onclick="sendBroadcast()">Send Update</button>
+<div class="status" id="bcStatus"></div>
+
   <!-- PDF UPLOAD -->
   <div class="section">
     <h3>📄 PDF Upload (Auto Quiz)</h3>
@@ -281,25 +294,7 @@ pdfStatus.textContent = "📋 Review extracted questions";
 
  }
 
-  const mappedQuestions = questions.map(q => ({
-  question: q.question,
-  A: q.A,
-  B: q.B,
-  C: q.C,
-  D: q.D,
-  correct: q.correct,
-  source: file.name
-}));
-
-  fetch(BACKEND_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      mode:"pdf",
-      token: ADMIN_TOKEN,
-      questions:mappedQuestions
-    })
-  })
-  .then(r=>r.json())
+   .then(r=>r.json())
   .then(res=>{
     pdfStatus.textContent = "✅ Added "+res.added+" questions";
   })
@@ -353,12 +348,26 @@ function extractMCQ(text){
   );
 }
 
-  if(sessionStorage.getItem("admin")==="yes"){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("panel").classList.remove("hidden");
+  function sendBroadcast(){
+  fetch(BACKEND_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      action:"broadcast",
+      token: ADMIN_TOKEN,
+      channel: bcChannel.value,
+      subject: "CET Update",
+      message: bcMsg.value
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    bcStatus.textContent =
+      res.success
+      ? "✅ Sent to "+res.result.sent+" users"
+      : "❌ "+res.error;
+  });
 }
-
-  let ADMIN_TOKEN = "";
 
 function sendOTP(){
   const user = el("adminUser").value.trim();
