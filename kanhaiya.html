@@ -178,13 +178,7 @@ function extractMCQ(rawText){
 
   blocks.forEach(block => {
 
-    const match = block.match(
-      /^(\d+[-.)]?\s*)([\s\S]{10,300}?)\s+
-      (A|\(A\)|a)[\).:\s]+([\s\S]+?)
-      (B|\(B\)|b)[\).:\s]+([\s\S]+?)
-      (C|\(C\)|c)[\).:\s]+([\s\S]+?)
-      (D|\(D\)|d)[\).:\s]+([\s\S]+)$/ix
-    );
+    const match = block.match(/^(\d+[-.)]?\s*)([\s\S]{10,300}?)\s+(A|\(A\)|a)[\).:\s]+([\s\S]+?)(B|\(B\)|b)[\).:\s]+([\s\S]+?)(C|\(C\)|c)[\).:\s]+([\s\S]+?)(D|\(D\)|d)[\).:\s]+([\s\S]+)$/i);
 
     if(!match) return;
 
@@ -226,35 +220,7 @@ function improveWithAI(rawText){
   });
 }
 
-  function normalizeText(t){
-
-  if(!t) return "";
-
-  // Common garbage
-  t = t.replace(/\s+/g," ");
-
-  // 🔸 Hindi punctuation normalize
-  t = t
-    .replace(/।/g,".")
-    .replace(/–|—/g,"-");
-
-  // 🔸 KrutiDev / legacy hints (basic)
-  const legacyMap = {
-    "vf/kd": "अधिक",
-    "vkSj": "और",
-    "dk": "का",
-    "ls": "से",
-    "D;k": "क्या"
-  };
-
-  Object.keys(legacyMap).forEach(k=>{
-    t = t.replace(new RegExp(k,"g"), legacyMap[k]);
-  });
-
-  return t;
-}
-
-</script>
+  </script>
 
 </body>
 </html>
