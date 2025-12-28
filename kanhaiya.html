@@ -118,6 +118,9 @@ async function processPDF(){
     });
   }
 
+  console.log("RAW PDF TEXT ↓↓↓");
+  console.log(rawText);
+  
   const mcqs = extractMCQ(rawText);
 
   if(!mcqs.length){
