@@ -79,8 +79,11 @@ button{
 
 <!-- ===== LOGIN ===== -->
 <div id="loginBox">
-  <input type="password" id="adminPass" placeholder="Admin Password">
-  <button type="button" onclick="login()">Login</button>
+  <input id="adminUser" placeholder="Mobile or Email">
+  <input id="adminOTP" placeholder="OTP" class="hidden">
+  <button onclick="sendOTP()">Send OTP</button>
+  <button onclick="verifyOTP()" class="hidden">Verify OTP</button>
+
 </div>
 
   <!-- ===admin analytic se link=== -->
@@ -313,6 +316,7 @@ pdfStatus.textContent = "📋 Review extracted questions";
     method:"POST",
     body:JSON.stringify({
       mode:"pdf",
+      token: ADMIN_TOKEN,
       questions:mappedQuestions
     })
   })
@@ -373,6 +377,44 @@ function extractMCQ(text){
   if(sessionStorage.getItem("admin")==="yes"){
   document.getElementById("loginBox").style.display="none";
   document.getElementById("panel").classList.remove("hidden");
+}
+
+  let ADMIN_TOKEN = "";
+
+function sendOTP(){
+  fetch(BACKEND_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"sendOTP",
+      user: adminUser.value.trim()
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success){
+      adminOTP.classList.remove("hidden");
+      alert("OTP sent (check server log)");
+    }else alert(res.error);
+  });
+}
+
+function verifyOTP(){
+  fetch(BACKEND_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"verifyOTP",
+      user: adminUser.value.trim(),
+      otp: adminOTP.value.trim()
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success){
+      ADMIN_TOKEN = res.token;
+      sessionStorage.setItem("adminToken", ADMIN_TOKEN);
+      panel.classList.remove("hidden");
+    }else alert(res.error);
+  });
 }
 
 </script>
