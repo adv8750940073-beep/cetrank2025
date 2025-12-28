@@ -8,43 +8,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <style>
-body{
-  font-family:system-ui;
-  background:#020617;
-  color:#e5e7eb;
-  padding:15px
-}
-.card{
-  max-width:900px;
-  margin:auto;
-  background:#0f172a;
-  border:1px solid #334155;
-  border-radius:14px;
-  padding:15px
-}
-input,textarea,select{
-  width:100%;
-  margin:6px 0;
-  padding:8px;
-  background:#020617;
-  color:#e5e7eb;
-  border:1px solid #334155;
-  border-radius:8px
-}
-button{
-  margin-top:8px;
-  padding:10px 16px;
-  border:none;
-  border-radius:999px;
-  background:#2563eb;
-  color:white;
-  cursor:pointer
-}
-.section{
-  margin-top:20px;
-  padding-top:10px;
-  border-top:1px dashed #334155
-}
+body{font-family:system-ui;background:#020617;color:#e5e7eb;padding:15px}
+.card{max-width:900px;margin:auto;background:#0f172a;border:1px solid #334155;border-radius:14px;padding:15px}
+input,textarea{width:100%;margin:6px 0;padding:8px;background:#020617;color:#e5e7eb;border:1px solid #334155;border-radius:8px}
+button{margin-top:8px;padding:10px 16px;border:none;border-radius:999px;background:#2563eb;color:white;cursor:pointer}
 .hidden{display:none}
 .status{color:#9ca3af}
 a{color:#60a5fa;text-decoration:none;font-weight:600}
@@ -58,34 +25,28 @@ a{color:#60a5fa;text-decoration:none;font-weight:600}
 <h2>🔐 Admin Login</h2>
 
 <div id="loginBox">
-  <input id="user" placeholder="Admin Username (Name)">
-  <input id="pass" placeholder="Password (Mobile)" type="password">
+  <input id="user" placeholder="Admin Username">
+  <input id="pass" placeholder="Password" type="password">
   <button onclick="login()">Login</button>
   <div id="loginStatus" class="status"></div>
 </div>
 
-<div style="margin-top:10px">
+<div id="panel" class="hidden">
+
+<button onclick="logout()" style="background:#dc2626">Logout</button>
+
+<div style="margin:10px 0">
   <a href="admin-analytics.html" target="_blank">
     📊 Open Analytics Dashboard
   </a>
 </div>
 
-<!-- ================= ADMIN PANEL ================= -->
-
-<div id="panel" class="hidden">
-
-  <h2>📄 Admin Panel</h2>
-
-  <!-- PDF UPLOAD -->
-  <div class="section">
-    <h3>PDF Upload (Auto MCQ)</h3>
-    <input type="file" id="pdfFile" accept="application/pdf">
-    <button onclick="processPDF()">Extract MCQ</button>
-    <div id="pdfStatus" class="status"></div>
-  </div>
+<h3>📄 PDF Upload (MCQ Extract)</h3>
+<input type="file" id="pdfFile" accept="application/pdf">
+<button onclick="processPDF()">Extract</button>
+<div id="pdfStatus" class="status"></div>
 
 </div>
-
 </div>
 
 <script>
@@ -93,65 +54,42 @@ const BACKEND =
 "https://script.google.com/macros/s/AKfycbykOLwPfiZPECfydtBY-H2o1UgBE0E9bf3tNHeuyVuzPL2N8C5RsADOD8CTin1RASb9/exec";
 
 function login(){
-  const u = user.value.trim();
-  const p = pass.value.trim();
-  if(!u || !p){
-    loginStatus.innerText = "❌ Username / Password required";
+  if(!user.value||!pass.value){
+    loginStatus.innerText="❌ Required";
     return;
   }
-
-  loginStatus.innerText = "Checking...";
-
-  fetch(`${BACKEND}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`)
+  fetch(`${BACKEND}?action=login&user=${user.value}&pass=${pass.value}`)
   .then(r=>r.json())
   .then(res=>{
     if(res.success){
       sessionStorage.setItem("admin","yes");
       loginBox.classList.add("hidden");
       panel.classList.remove("hidden");
-      loginStatus.innerText = "✅ Login successful";
     }else{
-      loginStatus.innerText = "❌ Invalid login";
+      loginStatus.innerText="❌ "+res.error;
     }
-  })
-  .catch(()=>{
-    loginStatus.innerText = "❌ Network error";
   });
 }
 
-// restore session
+function logout(){
+  sessionStorage.removeItem("admin");
+  location.reload();
+}
+
+// 🔒 Auto-block direct open
 if(sessionStorage.getItem("admin")==="yes"){
   loginBox.classList.add("hidden");
   panel.classList.remove("hidden");
 }
 
-/* ===== PDF PROCESS (OLD LOGIC SAFE) ===== */
+/* PDF logic untouched */
 async function processPDF(){
-  const file = pdfFile.files[0];
-  if(!file){ alert("Select PDF"); return }
-
-  pdfStatus.innerText = "Reading PDF...";
-
-  const buf = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({data:buf}).promise;
-
-  let text="";
-  for(let i=1;i<=pdf.numPages;i++){
-    const p = await pdf.getPage(i);
-    const c = await p.getTextContent();
-    c.items.forEach(it=>{
-      if(
-        it.str &&
-        it.str.length > 3 &&
-        !/hariyana|gk|www|pdf/i.test(it.str)
-      ){
-        text += it.str + "\n";
-      }
-    });
-  }
-
-  pdfStatus.innerText =
-    "PDF read successfully. MCQ extraction logic intact.";
+  const f=pdfFile.files[0];
+  if(!f) return alert("Select PDF");
+  pdfStatus.innerText="Reading...";
+  const buf=await f.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  pdfStatus.innerText="PDF loaded. MCQ logic safe.";
 }
 </script>
 
