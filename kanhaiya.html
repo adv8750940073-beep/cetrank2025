@@ -92,6 +92,25 @@ if(sessionStorage.getItem("adminToken")){
   panel.classList.remove("hidden");
 }
 
+  function isGarbageLine(t){
+  return (
+    t.length < 3 ||
+    /hariyana|haryana|gk|www|pdf|copyright|page|\d+\/\d+/i.test(t)
+  );
+}
+
+function normalizeHindi(text){
+  return text
+    .replace(/\r/g,"\n")
+    .replace(/[‐–—]/g,"-")
+    .replace(/[“”]/g,'"')
+    .replace(/[‘’]/g,"'")
+    .replace(/।/g,".")
+    .replace(/\n{2,}/g,"\n")
+    .replace(/\s{2,}/g," ")
+    .trim();
+}
+
 /* PDF logic untouched */
 async function processPDF(){
   const f = pdfFile.files[0];
@@ -107,53 +126,64 @@ async function processPDF(){
 
   let rawText = "";
 
-  for(let p=1; p<=pdf.numPages; p++){
-    const page = await pdf.getPage(p);
-    const tc = await page.getTextContent();
+for(let p=1; p<=pdf.numPages; p++){
+  const page = await pdf.getPage(p);
+  const tc = await page.getTextContent();
 
-    tc.items.forEach(it=>{
-      if(!it.str) return;
+  tc.items.forEach(it=>{
+    if(!it.str) return;
 
-      const t = it.str.trim();
+    const t = it.str.trim();
 
-      // ❌ Watermark / noise ignore
-      if(
-        t.length < 3 ||
-        /hariyana|gk|www|copyright|pdf|page/i.test(t)
-      ) return;
+    // ❌ Watermark / garbage ignore
+    if(
+      t.length < 3 ||
+      /hariyana|haryana|gk|www|copyright|pdf|page|\d+\/\d+/i.test(t)
+    ) return;
 
-      rawText += t + "\n";
-    });
-  }
+    rawText += t + "\n";
+  });
+}
 
-  console.log("RAW PDF TEXT ↓↓↓");
-  console.log(rawText);
+// 🔧 Hindi + formatting normalize
+rawText = rawText
+  .replace(/\r/g,"\n")
+  .replace(/[‐–—]/g,"-")
+  .replace(/[“”]/g,'"')
+  .replace(/[‘’]/g,"'")
+  .replace(/।/g,".")
+  .replace(/\n{2,}/g,"\n")
+  .replace(/\s{2,}/g," ")
+  .trim();
+
+console.log("📄 CLEAN PDF TEXT ↓↓↓");
+console.log(rawText);
   
 const mcqs = extractMCQ(rawText);
 
 if(!mcqs.length){
-
-  // 🔁 AI fallback (only if toggle ON)
-  if(document.getElementById("aiToggle")?.checked){
-    pdfStatus.innerText = "⚙️ Improving accuracy with AI...";
-    improveWithAI(rawText);
-    return;
-  }
-
-  pdfStatus.innerText = "❌ No MCQ detected — showing raw text in console";
-  console.log("===== RAW PDF TEXT =====");
-  console.log(rawText);
-  alert("MCQ नहीं मिले — Console में text check करो");
+  pdfStatus.innerText = "❌ No MCQ detected (check console)";
   return;
 }
 
-  pdfStatus.innerText =
-    `✅ ${mcqs.length} MCQ extracted (see console)`;
+pdfStatus.innerText = `✅ ${mcqs.length} MCQs found. Saving...`;
 
-  console.log("EXTRACTED MCQs:", mcqs);
-
-  // 👉 future: backend save yahin se hoga
-}
+fetch(BACKEND,{
+  method:"POST",
+  headers:{ "Content-Type":"application/json" },
+  body: JSON.stringify({
+    mode:"pdf",
+    token: sessionStorage.getItem("adminToken"),
+    questions: mcqs
+  })
+})
+.then(r=>r.json())
+.then(res=>{
+  pdfStatus.innerText = `🎉 ${res.added} MCQs saved to sheet`;
+})
+.catch(()=>{
+  pdfStatus.innerText = "❌ Save failed";
+});
 
   function normalizeText(text){
   return text
@@ -166,33 +196,41 @@ if(!mcqs.length){
     .trim();
 }
 
-function extractMCQ(rawText){
-  rawText = normalizeText(rawText);
+function extractMCQ(text){
 
   const mcqs = [];
 
-  // 🔥 Question blocks split
-  const blocks = rawText.split(/\n(?=\d+\s*[-.)])/);
+  const blocks = text.split(/\n(?=\d+\s*[\.\)\-])/);
 
-  console.log("Blocks found:", blocks.length);
+  console.log("🧩 Question blocks:", blocks.length);
 
-  blocks.forEach(block => {
+  blocks.forEach(b => {
 
-    const match = block.match(/^(\d+[-.)]?\s*)([\s\S]{10,300}?)\s+(A|\(A\)|a)[\).:\s]+([\s\S]+?)(B|\(B\)|b)[\).:\s]+([\s\S]+?)(C|\(C\)|c)[\).:\s]+([\s\S]+?)(D|\(D\)|d)[\).:\s]+([\s\S]+)$/i);
+    b = b.replace(/^\d+\s*[\.\)\-]\s*/,"").trim();
+    if(b.length < 20) return;
 
-    if(!match) return;
+    const qPart = b.split(/\bA[\.\)\:\-]/i)[0];
+    if(!qPart) return;
+
+    const A = b.match(/\bA[\.\)\:\-]\s*([^\n]+)/i);
+    const B = b.match(/\bB[\.\)\:\-]\s*([^\n]+)/i);
+    const C = b.match(/\bC[\.\)\:\-]\s*([^\n]+)/i);
+    const D = b.match(/\bD[\.\)\:\-]\s*([^\n]+)/i);
+
+    if(!A || !B || !C || !D) return;
 
     mcqs.push({
-      question: match[2].trim(),
-      A: match[4].trim(),
-      B: match[6].trim(),
-      C: match[8].trim(),
-      D: match[10].trim(),
-      correct: ""
+      question: qPart.replace(/\n+/g," ").trim(),
+      A: A[1].trim(),
+      B: B[1].trim(),
+      C: C[1].trim(),
+      D: D[1].trim(),
+      correct: "",
+      source: "PDF"
     });
   });
 
-  console.log("MCQs extracted:", mcqs.length);
+  console.log("✅ MCQs extracted:", mcqs.length);
   return mcqs;
 }
 
