@@ -294,14 +294,7 @@ pdfStatus.textContent = "📋 Review extracted questions";
 
  }
 
-   .then(r=>r.json())
-  .then(res=>{
-    pdfStatus.textContent = "✅ Added "+res.added+" questions";
-  })
-  .catch(()=> pdfStatus.textContent="❌ Upload error");
-}
-
-/* ===== MCQ EXTRACTOR ===== */
+  /* ===== MCQ EXTRACTOR ===== */
 function extractMCQ(text){
   const lines = text
     .split("\n")
@@ -440,6 +433,11 @@ function verifyOTP(){
     console.error(err);
     el("loginStatus").textContent = "❌ Network error";
   });
+}
+
+  if(ADMIN_TOKEN){
+  el("loginBox").style.display="none";
+  el("panel").classList.remove("hidden");
 }
 
 </script>
