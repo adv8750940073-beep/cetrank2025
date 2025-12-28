@@ -440,26 +440,35 @@ function verifyOTP(){
 }
 
   function sendEmailOTP(){
-  const email = email.value.trim();
-  loginStatus.textContent = "Sending OTP...";
+  const emailVal = el("email").value.trim();
+
+  if(!emailVal){
+    el("loginStatus").textContent = "❌ Email required";
+    return;
+  }
+
+  el("loginStatus").textContent = "⏳ Sending OTP...";
 
   fetch(BACKEND_URL,{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
       action:"sendEmailOTP",
-      email: email
+      email: emailVal
     })
   })
   .then(r=>r.json())
   .then(res=>{
     if(res.success){
-      loginStatus.textContent = "OTP sent to email";
-      otp.classList.remove("hidden");
-      vBtn.classList.remove("hidden");
+      el("loginStatus").textContent = "✅ OTP sent to email";
+      el("otp").classList.remove("hidden");
+      el("vBtn").classList.remove("hidden");
     }else{
-      loginStatus.textContent = res.error;
+      el("loginStatus").textContent = "❌ " + res.error;
     }
+  })
+  .catch(()=>{
+    el("loginStatus").textContent = "❌ Network error";
   });
 }
 
@@ -469,7 +478,7 @@ function verifyEmailOTP(){
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
       action:"verifyEmailOTP",
-      email: email.value,
+      email: el("email").value.trim(),
       otp: otp.value
     })
   })
