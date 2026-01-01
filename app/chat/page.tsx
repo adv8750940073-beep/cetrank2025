@@ -123,7 +123,16 @@ const loginWithEmail = async () => {
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
       <header className="p-4 text-center font-semibold border-b border-slate-800">
-        CET Rankers Group Chat
+                CET Rankers Group Chat
+                {role === "admin" && (
+          <a
+            href="/admin"
+            className="text-sm text-blue-400 underline"
+          >
+            Admin Dashboard
+          </a>
+        )}
+
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 space-y-3">
