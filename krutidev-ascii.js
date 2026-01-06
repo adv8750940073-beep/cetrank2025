@@ -13,9 +13,13 @@ function convertKruti() {
   }
 
   // STEP 1: SYMBOL & LETTER MAPPING
+   krutiMap.sort((a,b) => b[0].length - a[0].length);
+
   for (let i = 0; i < krutiMap.length; i++) {
     text = text.split(krutiMap[i][0]).join(krutiMap[i][1]);
   }
+   // remove duplicate aa-matra
+   text = text.replace(/ाा/g,"ा");
 
   // STEP 2: chhoti 'i' (ि) re-ordering
   let pos = text.indexOf("f");
@@ -107,5 +111,6 @@ function cleartext() {
   document.getElementById("krutitext").value = "";
   document.getElementById("unicodetext").value = "";
 }
+
 
 
