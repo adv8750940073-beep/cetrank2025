@@ -79,10 +79,6 @@ const krutiMap = [
 /* conjuncts */
 ["क्ष","क्ष"],["त्र","त्र"],["ज्ञ","ज्ञ"],["श्र","श्र"],
 
-/* numbers */
-["0","०"],["1","१"],["2","२"],["3","३"],["4","४"],
-["5","५"],["6","६"],["7","७"],["8","८"],["9","९"],
-
 /* punctuation */
 ["¼","("],["½",")"],["-","-"],["?","?"],["!","!"],[".","।"],
 
@@ -102,3 +98,4 @@ function cleartext() {
   document.getElementById("krutitext").value = "";
   document.getElementById("unicodetext").value = "";
 }
+
