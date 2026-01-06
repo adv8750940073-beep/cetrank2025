@@ -32,7 +32,7 @@ var kruti_text = document.getElementById("krutitext").value  ;
     processed_text += kruti_text ;
 
 
-    document.getElementById("unicodetext").value = processed_text  ;
+    document.getElementById("unicodetext").value = fixMojibake(text);
    }
 
 
@@ -140,3 +140,11 @@ function cleartext() {
 	document.getElementById("krutitext").value = '';
 	document.getElementById("unicodetext").value = '';
 }
+function fixMojibake(str) {
+  try {
+    return decodeURIComponent(escape(str));
+  } catch (e) {
+    return str;
+  }
+}
+
