@@ -3,6 +3,10 @@
    Source-compatible logic
    =============================== */
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 const kruti_array = [ /* --- SAME ARRAY YOU SHARED --- */ 
 "Ã±","Q+Z","sas","aa",")Z","ZZ","â€˜","â€™","â€œ","â€","Ã¥","Æ’","â€ž","â€¦","â€ ","â€¡","Ë†","â€°","Å ","â€¹",
 "Â¶+","d+","[+k","[+","x+","T+","t+","M+","<+","Q+",";+","j+","u+",
@@ -39,21 +43,50 @@ const unicode_array = [ /* --- SAME UNICODE ARRAY --- */
 "‘","’","“","”",";","(",")","{","}","=","।",".","-","µ","॰",",","् "
 ];
 
-function krutiunicode(){
-  let kruti_text = document.getElementById("krutitext").value;
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
-  for(let i=0;i<kruti_array.length;i++){
-    let regex = new RegExp(kruti_array[i],'g');
-    kruti_text = kruti_text.replace(regex, unicode_array[i]);
+function krutiunicode() {
+
+  let text = document.getElementById("krutitext").value;
+  if(!text.trim()){
+    alert("KrutiDev text empty hai");
+    return;
   }
 
-  // Fix chhoti "i"
-  kruti_text = kruti_text.replace(/f(.)/g,"$1ि");
+  // STEP 1: Symbol replacement
+  for (let i = 0; i < kruti_array.length; i++) {
+    let from = escapeRegExp(kruti_array[i]);
+    let to = unicode_array[i];
+    let regex = new RegExp(from, "g");
+    text = text.replace(regex, to);
+  }
 
-  // Fix reph
-  kruti_text = kruti_text.replace(/Z/g,"र्");
+  // STEP 2: chhoti 'i' (f)
+  let pos = text.indexOf("f");
+  while (pos !== -1) {
+    let nextChar = text.charAt(pos + 1);
+    text = text.replace("f" + nextChar, nextChar + "ि");
+    pos = text.indexOf("f", pos + 1);
+  }
 
-  document.getElementById("unicodetext").value = kruti_text;
+  // STEP 3: reph (Z)
+  let matras = "ािीुूृेैोौंँः";
+  let rpos = text.indexOf("Z");
+
+  while (rpos > 0) {
+    let p = rpos - 1;
+    while (matras.indexOf(text.charAt(p)) !== -1) {
+      p--;
+    }
+    let cluster = text.substring(p, rpos);
+    text = text.replace(cluster + "Z", "र्" + cluster);
+    rpos = text.indexOf("Z");
+  }
+
+  // FINAL OUTPUT
+  document.getElementById("unicodetext").value = text;
 }
 
 function copyclipboard(){
@@ -67,3 +100,4 @@ function cleartext(){
   document.getElementById("krutitext").value="";
   document.getElementById("unicodetext").value="";
 }
+
