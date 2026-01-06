@@ -2,24 +2,49 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>ASCII KrutiDev → Unicode Converter</title>
+<title>KrutiDev → Unicode Converter | CETRanker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{font-family:system-ui;background:#0f172a;color:#e5e7eb;padding:20px}
-.box{max-width:900px;margin:auto;background:#020617;padding:20px;border-radius:12px}
-textarea{width:100%;min-height:180px;margin:10px 0;padding:12px;font-size:16px}
-button{padding:10px 16px;margin:5px;border-radius:6px;border:0;cursor:pointer}
+body{
+  font-family:system-ui;
+  background:#0f172a;
+  color:#e5e7eb;
+  padding:20px
+}
+.box{
+  max-width:900px;
+  margin:auto;
+  background:#020617;
+  padding:20px;
+  border-radius:12px
+}
+textarea{
+  width:100%;
+  min-height:180px;
+  margin:10px 0;
+  padding:12px;
+  font-size:16px
+}
+button{
+  padding:10px 16px;
+  margin:5px;
+  border-radius:6px;
+  border:0;
+  cursor:pointer
+}
 .primary{background:#2563eb;color:#fff}
-.success{background:#16a34a;color:#fff}
 .danger{background:#dc2626;color:#fff}
+.success{background:#16a34a;color:#fff}
 </style>
 </head>
+
 <body>
 
 <div class="box">
-<h2>ASCII KrutiDev → Unicode Converter</h2>
+<h2>KrutiDev → Unicode Converter</h2>
 
-<textarea id="krutitext" placeholder="Paste ASCII KrutiDev text here"></textarea>
+<textarea id="krutitext" placeholder="Paste KrutiDev ASCII text here"></textarea>
 
 <button class="primary" onclick="convertKruti()">Convert</button>
 <button class="danger" onclick="cleartext()">Clear</button>
