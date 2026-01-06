@@ -1,92 +1,96 @@
-function krutiunicode() {
+/* =========================================================
+   ASCII KrutiDev 010 → Unicode (Devanagari)
+   Production-grade converter
+   ========================================================= */
 
-  let fullText = document.getElementById("krutitext").value;
-  let text_size = fullText.length;
-  let processed_text = "";
+function convertKruti() {
 
-  let max_text_size = 6000;
-  let n = 0, o = 0, r = 1;
+  let text = document.getElementById("krutitext").value;
 
-  while (r === 1) {
-
-    n = o;
-
-    if (o < (text_size - max_text_size)) {
-      o += max_text_size;
-      while (fullText.charAt(o) !== " ") { o--; }
-    } else {
-      o = text_size;
-      r = 0;
-    }
-
-    let kruti_text = fullText.substring(n, o);
-
-    kruti_text = replaceSymbols(kruti_text);
-    processed_text += kruti_text;
+  if (!text.trim()) {
+    alert("KrutiDev text empty hai");
+    return;
   }
 
-  document.getElementById("unicodetext").value = processed_text;
-}
-
-/* ================= CORE ENGINE ================= */
-
-function replaceSymbols(kruti_text) {
-
-  for (let i = 0; i < kruti_array.length; i++) {
-    let from = escapeRegExp(kruti_array[i]);
-    let to = unicode_array[i];
-    kruti_text = kruti_text.replace(new RegExp(from, "g"), to);
+  // STEP 1: SYMBOL & LETTER MAPPING
+  for (let i = 0; i < krutiMap.length; i++) {
+    text = text.split(krutiMap[i][0]).join(krutiMap[i][1]);
   }
 
-  // ± handling
-  kruti_text = kruti_text.replace(/±/g, "Zं");
-
-  // chhoti i (f)
-  let pos = kruti_text.indexOf("f");
+  // STEP 2: chhoti 'i' (ि) re-ordering
+  let pos = text.indexOf("f");
   while (pos !== -1) {
-    let ch = kruti_text.charAt(pos + 1);
-    kruti_text = kruti_text.replace("f" + ch, ch + "ि");
-    pos = kruti_text.indexOf("f", pos + 1);
+    let next = text.charAt(pos + 1);
+    text = text.replace("f" + next, next + "ि");
+    pos = text.indexOf("f", pos + 1);
   }
 
-  // fa =िं
-  pos = kruti_text.indexOf("fa");
-  while (pos !== -1) {
-    let ch = kruti_text.charAt(pos + 2);
-    kruti_text = kruti_text.replace("fa" + ch, ch + "िं");
-    pos = kruti_text.indexOf("fa", pos + 2);
-  }
-
-  // reorder: ि + halant
-  let idx = kruti_text.indexOf("ि्");
-  while (idx !== -1) {
-    let ch = kruti_text.charAt(idx + 2);
-    kruti_text = kruti_text.replace("ि्" + ch, "्" + ch + "ि");
-    idx = kruti_text.indexOf("ि्", idx + 2);
-  }
-
-  // reph (Z)
+  // STEP 3: reph handling (Z = र्)
   let matras = "ािीुूृेैोौंँः";
-  let rpos = kruti_text.indexOf("Z");
+  let rpos = text.indexOf("Z");
 
-  while (rpos > 0) {
+  while (rpos !== -1) {
     let p = rpos - 1;
-    while (matras.indexOf(kruti_text.charAt(p)) !== -1) {
+    while (p >= 0 && matras.indexOf(text.charAt(p)) !== -1) {
       p--;
     }
-    let cluster = kruti_text.substring(p, rpos);
-    kruti_text = kruti_text.replace(cluster + "Z", "र्" + cluster);
-    rpos = kruti_text.indexOf("Z");
+    let cluster = text.substring(p + 1, rpos);
+    text = text.replace(cluster + "Z", "र्" + cluster);
+    rpos = text.indexOf("Z");
   }
 
-  return kruti_text;
+  // STEP 4: halant + matra correction
+  text = text.replace(/ि्/g, "्ि");
+
+  // STEP 5: punctuation cleanup
+  text = text.replace(/ +/g, " ");
+
+  document.getElementById("unicodetext").value = text;
 }
 
-/* ================= HELPERS ================= */
+/* =========================
+   CORE ASCII MAPPING TABLE
+   ========================= */
 
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+const krutiMap = [
+
+/* vowels */
+["vks","ओ"],["vkS","औ"],["vk","आ"],["v","अ"],
+["bZ","ई"],["b","इ"],["m","उ"],["Å","ऊ"],
+[",s","ऐ"],[",","ए"],["_","ऋ"],
+
+/* matras */
+["ks","ो"],["kS","ौ"],["k","ा"],["h","ी"],
+["q","ु"],["w","ू"],["`","ृ"],["s","े"],
+["S","ै"],["a","ं"],["¡","ँ"],["%","ः"],
+
+/* consonants */
+["d","क"],["D","ख"],["x","ग"],["X","घ"],["Ä","ङ"],
+["p","च"],["P","छ"],["t","ज"],["T","झ"],["N","ञ"],
+["V","ट"],["B","ठ"],["M","ड"],["<","ढ"],[".","ण"],
+["r","त"],["R","थ"],["n","द"],["/","ध"],["u","न"],
+["i","प"],["I","फ"],["Q","ब"],["c","भ"],["e","म"],
+[";","य"],["j","र"],["y","ल"],["G","व"],
+["'k","श"],["\"k","ष"],["l","स"],["g","ह"],
+
+/* halant */
+["~","्"],
+
+/* conjuncts */
+["क्ष","क्ष"],["त्र","त्र"],["ज्ञ","ज्ञ"],["श्र","श्र"],
+
+/* numbers */
+["0","०"],["1","१"],["2","२"],["3","३"],["4","४"],
+["5","५"],["6","६"],["7","७"],["8","८"],["9","९"],
+
+/* punctuation */
+["¼","("],["½",")"],["-","-"],["?","?"],["!","!"],[".","।"],
+
+];
+
+/* =========================
+   UTILS
+   ========================= */
 
 function copyclipboard() {
   let t = document.getElementById("unicodetext");
