@@ -54,6 +54,15 @@ function convertKruti() {
 
 const krutiMap = [
 
+/* === HIGH PRIORITY FIXES === */
+["mÙkj%&","उत्तर:"],
+["ç","प्र"],
+["H","य"],
+["Ù","त"],
+["ï","ि"],
+["&","-"],
+["-","."],
+
 /* vowels */
 ["vks","ओ"],["vkS","औ"],["vk","आ"],["v","अ"],
 ["bZ","ई"],["b","इ"],["m","उ"],["Å","ऊ"],
@@ -98,4 +107,5 @@ function cleartext() {
   document.getElementById("krutitext").value = "";
   document.getElementById("unicodetext").value = "";
 }
+
 
