@@ -1,60 +1,34 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <title>KrutiDev to Unicode | CET Ranker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body{
-      font-family: system-ui, sans-serif;
-      background:#0f172a;
-      color:#e5e7eb;
-      padding:20px;
-    }
-    .box{
-      max-width:800px;
-      margin:auto;
-      background:#020617;
-      padding:20px;
-      border-radius:12px;
-    }
-    textarea{
-      width:100%;
-      min-height:140px;
-      margin:10px 0;
-      padding:10px;
-      font-size:16px;
-    }
-    button{
-      padding:10px 16px;
-      margin:5px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-      font-size:15px;
-    }
-    .primary{background:#2563eb;color:#fff;}
-    .success{background:#16a34a;color:#fff;}
-    .danger{background:#dc2626;color:#fff;}
-  </style>
+<meta charset="UTF-8">
+<title>ASCII KrutiDev → Unicode Converter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:system-ui;background:#0f172a;color:#e5e7eb;padding:20px}
+.box{max-width:900px;margin:auto;background:#020617;padding:20px;border-radius:12px}
+textarea{width:100%;min-height:180px;margin:10px 0;padding:12px;font-size:16px}
+button{padding:10px 16px;margin:5px;border-radius:6px;border:0;cursor:pointer}
+.primary{background:#2563eb;color:#fff}
+.success{background:#16a34a;color:#fff}
+.danger{background:#dc2626;color:#fff}
+</style>
 </head>
 <body>
 
 <div class="box">
-  <h1>KrutiDev → Unicode Converter</h1>
+<h2>ASCII KrutiDev → Unicode Converter</h2>
 
-  <label>KrutiDev Text</label>
-  <textarea id="krutitext" placeholder="Paste KrutiDev text here"></textarea>
+<textarea id="krutitext" placeholder="Paste ASCII KrutiDev text here"></textarea>
 
-  <button class="primary" onclick="krutiunicode()">Convert</button>
-  <button class="danger" onclick="cleartext()">Clear</button>
+<button class="primary" onclick="convertKruti()">Convert</button>
+<button class="danger" onclick="cleartext()">Clear</button>
 
-  <label>Unicode Text</label>
-  <textarea id="unicodetext" placeholder="Unicode output"></textarea>
+<textarea id="unicodetext" placeholder="Unicode Output"></textarea>
 
-  <button class="success" onclick="copyclipboard()">Copy Unicode</button>
+<button class="success" onclick="copyclipboard()">Copy</button>
 </div>
 
-<script src="kruti-to-unicode.js"></script>
+<script src="krutidev-ascii.js"></script>
 </body>
 </html>
